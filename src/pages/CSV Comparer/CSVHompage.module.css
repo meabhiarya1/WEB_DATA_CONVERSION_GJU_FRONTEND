@@ -1,0 +1,18 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.homepage {
+  margin: 0;
+  padding: 0;
+  width: 100dvw;
+  min-height: 100dvh;
+  background-image: url("../../assets/images/csvcompare.jpg");
+  background-size: cover;
+  background-position: center;
+  padding-bottom: 30px;
+}
+.innerBox {
+  /* height: 100dvh; */
+}

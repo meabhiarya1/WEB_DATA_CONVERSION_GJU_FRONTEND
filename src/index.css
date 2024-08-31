@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  /* background-image: url("assets/images/bg-image.jpg");
+background-repeat: no-repeat;
+background-size: cover;
+height: 100vh; */
+  background: #e4ebf6;
+}
+
+.bgImage {
+  /* background-image: url("assets/images/uploaderbg.jpg");
+background-position: 50% 0;
+background-size: cover; */
+  height: 100vh;
+  /* background: linear-gradient(#C66258 to #533fd8) */ 
+}
+a {
+  text-decoration: none !important;
+}
+
+.scannerbg {
+  /* background-image: url("assets/images/scannerbg.jpg");
+background-position: 50% 0;
+background-size: cover;
+height: auto; */
+  /* height: auto;
+background: #3987da; */
+}
+
+/* .csvuploader {
+background-image: url("assets/images/csvuploaderbg.jpg");
+background-position: 50% 0;
+background-size: cover;
+} */
+
+.templatemapping {
+  /* background-image: url("assets/images/templatemappingbg.jpg");
+background-position: 50% 0;
+background-size: cover; */
+}
+/* .duplicateImg {
+background-image: url("assets/images/duplicateImg2.jpg");
+background-position: 50% 0;
+background-size: cover;
+height: 100vh;
+} */
