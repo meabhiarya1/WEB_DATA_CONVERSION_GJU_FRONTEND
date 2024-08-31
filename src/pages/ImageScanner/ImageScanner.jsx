@@ -218,18 +218,18 @@ const ImageScanner = () => {
         return;
       }
 
-      if (selectType === "number") {
-        if (!questionRange.min || !questionRange.max) {
-          toast.warning("Please enter the range of the field.");
-          return;
-        }
-        if (Number(questionRange.min) > Number(questionRange.max)) {
-          toast.warning(
-            "Ensure the minimum value is less than the maximum value."
-          );
-          return;
-        }
-      }
+      // if (selectType === "number") {
+      //   if (!questionRange.min || !questionRange.max) {
+      //     toast.warning("Please enter the range of the field.");
+      //     return;
+      //   }
+      //   if (Number(questionRange.min) > Number(questionRange.max)) {
+      //     toast.warning(
+      //       "Ensure the minimum value is less than the maximum value."
+      //     );
+      //     return;
+      //   }
+      // }
     }
 
     if (fieldType === "formField" && !lengthOfField) {
@@ -246,10 +246,7 @@ const ImageScanner = () => {
           ? inputField
           : questionRange.min + "--" + questionRange.max,
       dataFieldType: selectType,
-      fieldRange:
-        selectType === "number"
-          ? questionRange.min + "--" + questionRange.max
-          : "0",
+      fieldRange: "0",
       fieldLength: fieldType === "formField" ? lengthOfField : 0,
     };
 
@@ -264,10 +261,7 @@ const ImageScanner = () => {
         dataFieldType: selectType,
         fId: selectedCoordinateData.fId,
         fieldLength: fieldType === "formField" ? lengthOfField : 0,
-        fieldRange:
-          selectType === "number"
-            ? questionRange.min + "--" + questionRange.max
-            : "0",
+        fieldRange: "0",
         fieldType: fieldType,
         height: selectedCoordinateData.height,
         pageNo: selectedCoordinateData.pageNo,
@@ -283,7 +277,7 @@ const ImageScanner = () => {
     } else {
       setSelectedCoordinates((prev) => [...prev, newObj]);
     }
-    console.log(selectType);
+  
     setInputField("");
     setFieldType("");
     setLengthOfField("");
@@ -292,8 +286,6 @@ const ImageScanner = () => {
       min: "",
       max: "",
     });
-    console.log(selectType);
-
     setOpen(false);
     setSelectedCoordinateData(null);
     toast.success("Coordinate successfully added.");
@@ -520,16 +512,15 @@ const ImageScanner = () => {
       setSelectType(selectedCoordinate.dataFieldType);
       setLengthOfField(selectedCoordinate.fieldLength);
       setInputField(selectedCoordinate.attribute);
-      console.log(selectType);
 
-      if (selectedCoordinate.dataFieldType === "number") {
-        const [min, max] = selectedCoordinate.fieldRange.split("--");
-        setQuestionRange((prev) => ({
-          ...prev,
-          min: min,
-          max: max,
-        }));
-      }
+      // if (selectedCoordinate.dataFieldType === "number") {
+      //   const [min, max] = selectedCoordinate.fieldRange.split("--");
+      //   setQuestionRange((prev) => ({
+      //     ...prev,
+      //     min: min,
+      //     max: max,
+      //   }));
+      // }
     } else if (selectedCoordinate.fieldType === "questionsField") {
       setFieldType("questionsField");
       const [min, max] = selectedCoordinate.attribute.split("--");

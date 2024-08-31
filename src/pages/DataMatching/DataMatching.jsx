@@ -145,13 +145,13 @@ const DataMatching = () => {
       });
 
     for (let i = 0; i < filteredFormData.length; i++) {
-      let { dataFieldType, fieldLength, fieldRange, csvHeaderKey } = filteredFormData[i];
+      let { dataFieldType, fieldLength, csvHeaderKey } = filteredFormData[i];
       let keyValue = csvCurrentData[csvHeaderKey];
       fieldLength = Number(fieldLength);
       keyValue = keyValue.toString();
 
       if (dataFieldType === "number") {
-        const [min, max] = fieldRange.split("--").map(Number);
+        // const [min, max] = fieldRange.split("--").map(Number);
         const blankDefinition = templateHeaders?.blankDefination === "space" ? " " : templateHeaders?.blankDefination;
 
         if (keyValue.includes(templateHeaders?.patternDefinition)) {
@@ -170,10 +170,10 @@ const DataMatching = () => {
           return;
         }
 
-        if (keyValueNumber < min || keyValueNumber > max) {
-          toast.warning(`Number ${csvHeaderKey} is out of range. It should be between ${min} and ${max}.`);
-          return;
-        }
+        // if (keyValueNumber < min || keyValueNumber > max) {
+        //   toast.warning(`Number ${csvHeaderKey} is out of range. It should be between ${min} and ${max}.`);
+        //   return;
+        // }
       } else if (dataFieldType === "text") {
         if (keyValue.trim().length === 0) {
           toast.warning(`The ${csvHeaderKey} is empty.`);
@@ -572,7 +572,7 @@ const DataMatching = () => {
           } else if (newValue !== filteredValue) {
             toast.error("Text contains invalid characters.");
             return prevData;
-          } else if (filteredValue.length > maxLength) {
+          } else if (filteredValue.length >= maxLength) {
             toast.error(`Text exceeds maximum length of ${maxLength}.`);
             return prevData;
           } else {

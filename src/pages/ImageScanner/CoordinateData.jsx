@@ -109,7 +109,7 @@ const CoordinateData = ({
                             <option value="number">Numeric</option>
                             <option value="alphanumeric">AlphaNumeric</option>
                           </select>
-                          {selectType === "number" && (
+                          {/* {selectType === "number" && (
                             <div className="flex gap-5">
                               <div className="flex items-center gap-4">
                                 <span className="font-bold text-gray-700">
@@ -152,7 +152,7 @@ const CoordinateData = ({
                                 />
                               </div>
                             </div>
-                          )}
+                          )} */}
                         </div>
                         <div className="mt-8 flex gap-5">
                           <div className="flex items-center gap-4">

@@ -11,7 +11,9 @@ const FormDataSection = ({
   changeCurrentCsvDataHandler,
   imageFocusHandler,
 }) => {
-  const blankDefinition = templateHeaders?.blankDefinition === "space" ? " " : templateHeaders?.blankDefinition;
+
+
+  const blankDefinition = templateHeaders?.blankDefination === "space" ? " " : templateHeaders?.blankDefination;
 
   return (
     <div className="border-e lg:w-3/12 xl:w-[20%] order-lg-1">
