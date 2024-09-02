@@ -4,6 +4,7 @@ import { onGetVerifiedUserHandler } from "../../services/common";
 
 const Profile = () => {
   const [user, setUser] = useState({});
+
   useEffect(() => {
     const user = async () => {
       try {
@@ -15,6 +16,8 @@ const Profile = () => {
     };
     user();
   }, []);
+
+
   return (
     <div className=" flex justify-center items-center bg-gradient-to-r from-blue-400 to-blue-600 h-[100vh] pt-20">
       <div className="bg-white w-4/6 lg:w-1/2 xl:w-1/3 rounded-3xl py-8 px-8 shadow-md">

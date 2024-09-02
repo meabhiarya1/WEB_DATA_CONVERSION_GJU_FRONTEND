@@ -9,6 +9,8 @@ const CsvHomepage = () => {
   const [loading, setLoading] = useState(false);
   const [firstCsv, setFirstCsv] = useState(null);
   const [secondCsv, setSecondCsv] = useState(null);
+  const [imageColumnName, setImageColumnName] = useState("");
+  const [csv1Headers, setCsv1Headers] = useState([]); // New state for headers
   const formRef = useRef(null);
 
   const onMergeHandler = async () => {
@@ -18,11 +20,16 @@ const CsvHomepage = () => {
         return;
       }
 
+      if (!imageColumnName) {
+        toast.warning("Please select an image column name.");
+        return;
+      }
+
       setLoading(true);
-      const firstCsvData = await readCsv(firstCsv);
+      const firstCsvData = await readCsv(firstCsv, true);
       const secondCsvData = await readCsv(secondCsv);
       const mergedData = mergeCsvData(firstCsvData, secondCsvData);
-      const mergedCsv = Papa.unparse(mergedData);
+      const mergedCsv = Papa.unparse(mergedData.data);
       toast.success("CSV files merged successfully.");
       downloadCsv(mergedCsv, 'merged.csv');
     } catch (error) {
@@ -31,7 +38,8 @@ const CsvHomepage = () => {
       setLoading(false);
       setFirstCsv(null);
       setSecondCsv(null);
-
+      setImageColumnName('');
+      setCsv1Headers([]); // Reset headers
       // Reset the form
       if (formRef.current) {
         formRef.current.reset();
@@ -39,11 +47,14 @@ const CsvHomepage = () => {
     }
   };
 
-  const readCsv = (file) => {
+  const readCsv = (file, isFirstCsv = false) => {
     return new Promise((resolve, reject) => {
       Papa.parse(file, {
         header: true,
         complete: (results) => {
+          if (isFirstCsv) {
+            setCsv1Headers(Object.keys(results.data[0] || {})); // Store headers
+          }
           resolve(results.data);
         },
         error: (error) => {
@@ -54,38 +65,25 @@ const CsvHomepage = () => {
   };
 
   const mergeCsvData = (csv1Data, csv2Data) => {
-    const csv1Headers = Object.keys(csv1Data[0] || {});
+    const csv1HeadersBeforeImage = csv1Headers.slice(0, csv1Headers.indexOf(imageColumnName));
+    const csv1HeadersAfterImage = csv1Headers.slice(csv1Headers.indexOf(imageColumnName));
+
     const csv2Headers = Object.keys(csv2Data[0] || {});
-
-    const isBar1ColPrensentInCsv1 = csv1Headers.includes('BAR1');
-    if (!isBar1ColPrensentInCsv1) {
-      toast.warning("CSV1 and CSV2 must have a BAR1 column.");
-      return [];
-    }
-    const isBar1ColPrensentInCsv2 = csv2Headers.includes('BAR1');
-
-    if (!isBar1ColPrensentInCsv2) {
-      toast.warning("CSV1 and CSV2 must have a BAR1 column.");
-      return [];
-    }
-
-    const mergedHeaders = Array.from(new Set([...csv1Headers, ...csv2Headers]));
-
-    const isBar1ColumnPresent = mergedHeaders.includes('BAR1');
-
-    if (!isBar1ColumnPresent) {
-      toast.warning("CSV1 and CSV2 must have a BAR1 column.");
-      return [];
-    }
+    const mergedHeaders = [
+      ...csv1HeadersBeforeImage,
+      ...csv2Headers.filter(header => header !== 'BAR1'), // Exclude 'BAR1' if it's duplicated
+      ...csv1HeadersAfterImage
+    ];
 
     const csv1Map = new Map();
+    const csv2Map = new Map();
+
     csv1Data.forEach(row => {
       if (row.BAR1) {
         csv1Map.set(row.BAR1, row);
       }
     });
 
-    const csv2Map = new Map();
     csv2Data.forEach(row => {
       if (row.BAR1) {
         csv2Map.set(row.BAR1, row);
@@ -96,28 +94,34 @@ const CsvHomepage = () => {
 
     csv1Data.forEach(csv1Row => {
       const bar1Value = csv1Row.BAR1;
-      const csv2Row = csv2Map.get(bar1Value);
+      const csv2Row = csv2Map.get(bar1Value) || {};
 
       const mergedRow = {};
-      mergedHeaders.forEach(header => {
-        mergedRow[header] = csv1Row[header] || csv2Row?.[header] || '';
+
+      // Add headers from csv1 before the image column
+      csv1HeadersBeforeImage.forEach(header => {
+        mergedRow[header] = csv1Row[header] || '';
+      });
+
+      // Add headers from csv2, but prefer csv1's value if header exists in both
+      csv2Headers.forEach(header => {
+        if (header !== 'BAR1') {
+          mergedRow[header] = csv1Row[header] || csv2Row[header] || '';
+        }
+      });
+
+      // Add headers from csv1 after the image column
+      csv1HeadersAfterImage.forEach(header => {
+        mergedRow[header] = csv1Row[header] || '';
       });
 
       mergedData.push(mergedRow);
     });
 
-    csv2Data.forEach(csv2Row => {
-      const bar1Value = csv2Row.BAR1;
-      if (!csv1Map.has(bar1Value)) {
-        const newRow = {};
-        mergedHeaders.forEach(header => {
-          newRow[header] = csv2Row[header] || '';
-        });
-        mergedData.push(newRow);
-      }
-    });
-
-    return mergedData;
+    return {
+      headers: mergedHeaders,
+      data: mergedData
+    };
   };
 
   const downloadCsv = (csvContent, fileName) => {
@@ -149,42 +153,69 @@ const CsvHomepage = () => {
             <div className="flex flex-row justify-between gap-10 mb-6">
               <div className="grid w-full items-center gap-1.5">
                 <label className="text-sm text-gray-600 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Select Paper 1
+                  Upload First CSV
                 </label>
                 <input
                   type="file"
-                  className="flex h-10 w-full rounded-md border bg-white px-3 py-2 text-sm text-gray-400 file:border-0 file:bg-transparent file:text-gray-600 file:text-sm file:font-medium border-black-400 hover:border-blue-400"
-                  onChange={(e) => setFirstCsv(e.target.files[0])}
-                  accept="text/csv"
+                  accept=".csv"
+                  className="flex h-10 w-full rounded-md border bg-white px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-gray-600 file:text-sm file:font-medium border-black-400 hover:border-blue-400"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    setFirstCsv(file);
+                    if (file) {
+                      readCsv(file, true); // Indicate this is the first CSV
+                    }
+                  }}
                 />
               </div>
               <div className="grid w-full items-center gap-1.5">
                 <label className="text-sm text-gray-600 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Select Paper 2
+                  Upload Second CSV
                 </label>
                 <input
                   type="file"
-                  className="flex h-10 w-full rounded-md border bg-white px-3 py-2 text-sm text-gray-400 file:border-0 file:bg-transparent file:text-gray-600 file:text-sm file:font-medium border-black-400 hover:border-blue-400"
-                  onChange={(e) => setSecondCsv(e.target.files[0])}
-                  accept="text/csv"
+                  accept=".csv"
+                  className="flex h-10 w-full rounded-md border bg-white px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-gray-600 file:text-sm file:font-medium border-black-400 hover:border-blue-400"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    setSecondCsv(file);
+                    if (file) {
+                      readCsv(file);
+                    }
+                  }}
                 />
               </div>
             </div>
-            <div className="flex justify-between gap-10">
-              <div className="flex self-end">
-                <LoadingButton
-                  color="primary"
-                  loading={loading}
-                  onClick={onMergeHandler}
-                  loadingPosition="start"
-                  startIcon={
-                    <CompareArrowsIcon size={24} sx={{ marginRight: "8px" }} />
-                  }
-                  variant="contained"
+            <div className="flex flex-row justify-between gap-10 mb-6">
+              <div className="grid w-1/2 items-center gap-1.5">
+                <label className="text-sm text-gray-600 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Select Place Column Name
+                </label>
+                <select
+                  value={imageColumnName}
+                  onChange={(e) => setImageColumnName(e.target.value)}
+                  className="flex h-10 w-full rounded-md border bg-white px-3 py-2 text-sm font-weight-bold text-gray-400 file:border-0 file:bg-transparent file:text-gray-600 file:text-sm file:font-medium border-black-400 hover:border-blue-400"
                 >
-                  Compare And Merge
-                </LoadingButton>
+                  <option value="" disabled>Select a column</option>
+                  {csv1Headers.map((header, index) => (
+                    <option key={index} value={header}>
+                      {header}
+                    </option>
+                  ))}
+                </select>
               </div>
+            </div>
+            <div className="flex flex-row justify-center gap-10">
+              <LoadingButton
+                loading={loading}
+                onClick={onMergeHandler}
+                variant="contained"
+                endIcon={<CompareArrowsIcon />}
+                loadingPosition="end"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Merge CSVs
+              </LoadingButton>
             </div>
           </form>
         </div>

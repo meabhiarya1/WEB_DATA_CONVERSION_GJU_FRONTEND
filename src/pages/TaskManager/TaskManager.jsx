@@ -95,7 +95,6 @@ const TemplateMapping = () => {
     if (isNaN(newMinValue)) {
       newMinValue = taskValue.min;
     }
-    console.log(taskValue.max + " -  >" + totalData);
     if (taskValue.max == totalData) {
       setShowModal(true);
     }

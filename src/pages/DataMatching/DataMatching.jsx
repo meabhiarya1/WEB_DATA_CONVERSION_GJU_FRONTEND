@@ -164,7 +164,6 @@ const DataMatching = () => {
           return;
         }
 
-        const keyValueNumber = Number(keyValue);
         if (keyValue.length !== fieldLength) {
           toast.warning(`The length of ${csvHeaderKey} should be ${fieldLength}.`);
           return;
@@ -179,8 +178,8 @@ const DataMatching = () => {
           toast.warning(`The ${csvHeaderKey} is empty.`);
           return;
         }
-
-        if (keyValue.length !== fieldLength) {
+        console.log(keyValue + " keyValue " + fieldLength + " fieldLength ");
+        if (keyValue.length > fieldLength) {
           toast.warning(`The length of ${csvHeaderKey} should be ${fieldLength}.`);
           return;
         }
@@ -196,7 +195,7 @@ const DataMatching = () => {
           return;
         }
 
-        if (keyValue.length !== fieldLength) {
+        if (keyValue.length > fieldLength) {
           toast.warning(`The length of ${csvHeaderKey} should be ${fieldLength}.`);
           return;
         }
@@ -559,7 +558,6 @@ const DataMatching = () => {
           }
         } else if (dataFieldType === "text") {
           const filteredValue = newValue.replace(/[^A-Za-z\s]/g, "");
-
           if (newValue.length < previousValue.length) {
             setModifiedKeys((prevKeys) => ({
               ...prevKeys,
@@ -572,7 +570,7 @@ const DataMatching = () => {
           } else if (newValue !== filteredValue) {
             toast.error("Text contains invalid characters.");
             return prevData;
-          } else if (filteredValue.length >= maxLength) {
+          } else if (filteredValue.length > maxLength) {
             toast.error(`Text exceeds maximum length of ${maxLength}.`);
             return prevData;
           } else {
