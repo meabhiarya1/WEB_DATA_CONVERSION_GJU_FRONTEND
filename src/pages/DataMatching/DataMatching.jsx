@@ -178,8 +178,8 @@ const DataMatching = () => {
           toast.warning(`The ${csvHeaderKey} is empty.`);
           return;
         }
-        console.log(keyValue + " keyValue " + fieldLength + " fieldLength ");
-        if (keyValue.length > fieldLength) {
+
+        if (keyValue.length !== fieldLength) {
           toast.warning(`The length of ${csvHeaderKey} should be ${fieldLength}.`);
           return;
         }
@@ -195,7 +195,7 @@ const DataMatching = () => {
           return;
         }
 
-        if (keyValue.length > fieldLength) {
+        if (keyValue.length !== fieldLength) {
           toast.warning(`The length of ${csvHeaderKey} should be ${fieldLength}.`);
           return;
         }
