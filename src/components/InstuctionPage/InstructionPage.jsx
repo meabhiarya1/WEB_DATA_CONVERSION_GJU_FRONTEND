@@ -40,7 +40,7 @@ const InstructionPage = ({ setInstuction, instruction, handleFinalSubmit }) => {
                     A. Select form field type (Text/Number/Alphanumeric).
                   </p>
                   <p className="mb-1">
-                    B. On Selecting Number type, add Start and End Value.
+                    B. On Selecting Number type
                   </p>
                   <p className="mb-1">C. Add Form Field length.</p>
                   <p className="mb-1">D. Add Form Field Name.</p>
