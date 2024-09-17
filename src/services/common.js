@@ -2,8 +2,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 // export const REACT_APP_IP = "192.168.0.106";
-export const SERVER_IP = "http://192.168.1.58:4000";
-export const REACT_APP_IP = "192.168.1.58";
+export const SERVER_IP = "http://192.168.1.12:4000";
+export const REACT_APP_IP = "192.168.1.12";
 // export const REACT_APP_IP = "localhos";
 export const onGetTemplateHandler = async () => {
   const token = JSON.parse(localStorage.getItem("userData"));

@@ -19,8 +19,8 @@ const CoordinateData = ({
   return (
     <>
       {open && (
-        <Draggable handle=".modal-header" cancel=".modal-body">
-          <div className={`fixed inset-0 z-50  mt-40`}>
+        <Draggable handle=".modal-header" cancel=".no-drag">
+          <div className={`fixed inset-0 z-50 mt-40`}>
             <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
               <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                 <div className="modal-header bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 cursor-move">
@@ -66,7 +66,7 @@ const CoordinateData = ({
                           id="formField"
                           name="fieldType"
                           value="formField"
-                          className="form-radio text-blue-500"
+                          className="form-radio text-blue-500 no-drag"
                           required
                           checked={fieldType === "formField"}
                           onChange={() => setFieldType("formField")}
@@ -84,7 +84,7 @@ const CoordinateData = ({
                           id="questionsField"
                           name="fieldType"
                           value="questionsField"
-                          className="form-radio text-blue-500"
+                          className="form-radio text-blue-500 no-drag"
                           required
                           checked={fieldType === "questionsField"}
                           onChange={() => setFieldType("questionsField")}
@@ -102,57 +102,13 @@ const CoordinateData = ({
                           <select
                             onChange={(e) => setSelectType(e.target.value)}
                             value={selectType}
-                            className="input w-full sm:w-[32%] border-2 font-semibold bg-white text-lg focus:border-1 rounded-xl px-3 py-2 shadow-xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                            className="input w-full sm:w-[32%] border-2 font-semibold bg-white text-lg focus:border-1 rounded-xl px-3 py-2 shadow-xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none no-drag"
                           >
                             <option value="">Select Type</option>
                             <option value="text">Alpha</option>
                             <option value="number">Numeric</option>
                             <option value="alphanumeric">AlphaNumeric</option>
                           </select>
-                          {/* {selectType === "number" && (
-                            <div className="flex gap-5">
-                              <div className="flex items-center gap-4">
-                                <span className="font-bold text-gray-700">
-                                  Start
-                                </span>
-                                <input
-                                  type="number"
-                                  id="Quantity"
-                                  value={questionRange.min}
-                                  onChange={(e) => {
-                                    const value = parseInt(e.target.value);
-                                    if (!isNaN(value) && value >= 0) {
-                                      setQuestionRange({
-                                        ...questionRange,
-                                        min: value,
-                                      });
-                                    }
-                                  }}
-                                  className="h-10 w-16 rounded border-2 border-gray-200 text-center"
-                                />
-                              </div>
-                              <div className="flex items-center gap-4">
-                                <span className="font-bold text-gray-700">
-                                  End
-                                </span>
-                                <input
-                                  type="number"
-                                  id="Quantity"
-                                  value={questionRange.max}
-                                  onChange={(e) => {
-                                    const value = parseInt(e.target.value);
-                                    if (!isNaN(value) && value >= 0) {
-                                      setQuestionRange({
-                                        ...questionRange,
-                                        max: value,
-                                      });
-                                    }
-                                  }}
-                                  className="h-10 w-16 rounded border-2 border-gray-200 text-center"
-                                />
-                              </div>
-                            </div>
-                          )} */}
                         </div>
                         <div className="mt-8 flex gap-5">
                           <div className="flex items-center gap-4">
@@ -169,12 +125,12 @@ const CoordinateData = ({
                                   setLengthOfField(e.target.value);
                                 }
                               }}
-                              className="h-10 w-16 rounded border-2 border-gray-200 text-center"
+                              className="h-10 w-16 rounded border-2 border-gray-200 text-center no-drag"
                             />
                           </div>
                           <input
                             required
-                            className="input w-full sm:w-[36%] border-2 font-semibold bg-white text-lg focus:border-1 rounded-xl px-3 py-2 shadow-xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                            className="input w-full sm:w-[36%] border-2 font-semibold bg-white text-lg focus:border-1 rounded-xl px-3 py-2 shadow-xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none no-drag"
                             type="text"
                             name="field"
                             placeholder="Field name..."
@@ -207,7 +163,7 @@ const CoordinateData = ({
                                 });
                               }
                             }}
-                            className="h-10 w-16 rounded border-2 border-gray-200 text-center"
+                            className="h-10 w-16 rounded border-2 border-gray-200 text-center no-drag"
                           />
                         </div>
                         <div className="flex items-center gap-4">
@@ -225,7 +181,7 @@ const CoordinateData = ({
                                 });
                               }
                             }}
-                            className="h-10 w-16 rounded border-2 border-gray-200 text-center"
+                            className="h-10 w-16 rounded border-2 border-gray-200 text-center no-drag"
                           />
                         </div>
                         <button
@@ -245,6 +201,7 @@ const CoordinateData = ({
         </Draggable>
       )}
     </>
+
   );
 };
 
