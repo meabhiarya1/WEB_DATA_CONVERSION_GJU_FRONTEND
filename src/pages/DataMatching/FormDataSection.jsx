@@ -5,7 +5,6 @@ const FormDataSection = ({
   csvData,
   templateHeaders,
   imageColName,
-  currentFocusIndex,
   inputRefs,
   handleKeyDownJump,
   changeCurrentCsvDataHandler,
@@ -58,7 +57,7 @@ const FormDataSection = ({
                         imageFocusHandler(key)
                         setFocusedIndex(i)
                       }}
-                      onBlur={() => setFocusedIndex(null)} // Clear focused index on blur
+                      onBlur={() => setFocusedIndex(null)}
                     />
                   </div>
                 );
