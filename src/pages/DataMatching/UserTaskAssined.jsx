@@ -63,8 +63,8 @@ const UserTaskAssined = ({
                     </div>
                     <div className="divide-y divide-gray-200 bg-white overflow-y-auto max-h-[300px]">
                       {allTasks?.map((taskData) => (
-                        <>
-                          <div key={taskData.id} className="flex  py-2 w-full">
+                        <div key={taskData.id}>
+                          <div  className="flex  py-2 w-full">
                             <div className="whitespace-nowrap w-[150px] px-4">
                               <div className="text-md text-center">
                                 {taskData.templateName}
@@ -160,7 +160,7 @@ const UserTaskAssined = ({
                               </button>
                             </div>
                           </div>
-                        </>
+                        </div>
                       ))}
                       {compareTask?.map((taskData, index) => (
                         <div
