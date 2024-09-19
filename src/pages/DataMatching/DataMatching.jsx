@@ -550,7 +550,7 @@ const DataMatching = () => {
         );
 
         if (!currentFormData) {
-          return prevData; // No corresponding form data
+          return prevData; 
         }
 
         const { dataFieldType, fieldLength } = currentFormData;
