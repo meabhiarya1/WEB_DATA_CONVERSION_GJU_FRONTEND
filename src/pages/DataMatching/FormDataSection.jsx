@@ -23,10 +23,11 @@ const FormDataSection = ({
         >
           {csvCurrentData &&
             Object.entries({ ...csvData[0] }).map(([key, value], i) => {
-              const templateData = templateHeaders?.templetedata.find(
+              const templateFormData = templateHeaders?.templetedata.find(
                 (data) => data.attribute === value && data.fieldType === "formField"
               );
-              if (key !== imageColName && templateData) {
+
+              if (key !== imageColName && templateFormData) {
                 const isEmptyOrBlank =
                   !csvCurrentData[key] ||
                   csvCurrentData[key] === blankDefinition ||

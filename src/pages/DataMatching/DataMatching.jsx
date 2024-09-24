@@ -126,7 +126,6 @@ const DataMatching = () => {
   }, [popUp]);
 
 
-
   useEffect(() => {
     const fetchTemplate = async () => {
       try {
@@ -141,6 +140,7 @@ const DataMatching = () => {
     };
     fetchTemplate();
   }, [currentTaskData]);
+
 
   // Api for updating the csv data in the backend
   const onCsvUpdateHandler = async () => {
@@ -376,116 +376,101 @@ const DataMatching = () => {
     }
   };
 
+
   // Api for getting the image from the backend
-  const onImageHandler = async (
-    direction,
-    currMatchingIndex,
-    csvData,
-    taskData
-  ) => {
+  const onImageHandler = async (direction, currMatchingIndex, csvData, taskData) => {
     const headers = csvData[0];
+
+    // Utility to match keys by pattern
     const getKeysByPattern = (object, pattern) => {
       const regex = new RegExp(pattern);
       return Object.keys(object).filter((key) => regex.test(object[key]));
     };
-    const imageNames = [];
+
+    console.log(templateHeaders)
+
+    // Extract image column names
+    let imageNames = [];
     let i = 1;
     while (true) {
       const keys = getKeysByPattern(headers, `Image${i}`);
-      if (keys.length === 0) break;
+      if (!keys.length) break;
       imageNames.push(...keys);
       i++;
     }
     setImageColNames(imageNames);
+
+
     try {
       let newIndex = currMatchingIndex;
       let allImagePaths;
-      if (direction === "initial") {
-        const objects = csvData[newIndex];
-        if (objects && typeof objects === 'object') {
-          const trimmedObjects = Object.fromEntries(
-            Object.entries(objects).map(([key, value]) => {
-              return [key, typeof value === 'string' ? value.trim() : value];
-            })
-          );
-          allImagePaths = imageNames.map((key) => trimmedObjects[key]);
-          setCsvCurrentData(trimmedObjects);
-        }
-      } else {
-        newIndex = direction === "next" ? newIndex + 1 : newIndex - 1;
-        if (newIndex > 0 && newIndex < csvData.length) {
+
+      if (direction === "initial" || (newIndex > 0 && newIndex < csvData.length)) {
+        if (direction !== "initial") {
+          newIndex = direction === "next" ? newIndex + 1 : newIndex - 1;
           setCurrentIndex(newIndex);
-          const objects = csvData[newIndex];
-          if (objects && typeof objects === 'object') {
-            // Create a new object with trimmed values
-            const trimmedObjects = Object.fromEntries(
-              Object.entries(objects).map(([key, value]) => {
-                // Trim the value if it's a string
-                return [key, typeof value === 'string' ? value.trim() : value];
-              })
-            );
+        }
 
-            // Process image paths
-            allImagePaths = imageNames.map((key) => trimmedObjects[key]);
-
-            // Update state with the trimmed object
-            setCsvCurrentData(trimmedObjects);
-          }
-        } else {
-          toast.warning(
-            direction === "next"
-              ? "All images have been processed."
-              : "You are already at the first image."
+        const row = csvData[newIndex];
+        if (row && typeof row === 'object') {
+          const trimmedRow = Object.fromEntries(
+            Object.entries(row).map(([key, value]) => [key, typeof value === 'string' ? value.trim() : value])
           );
-          return;
-        }
-      }
-      setImageUrls(allImagePaths)
-      await axios.post(
-        `http://${REACT_APP_IP}:4000/get/image`,
-        {
-          imageNameArray: allImagePaths,
-          rowIndex: csvData[newIndex].rowIndex,
-          id: taskData.id,
-        },
-        {
-          headers: {
-            token: token,
-          },
-        }
-      );
 
-      // const url = response.data?.base64Image;
-      // const pathParts = imageName1?.split("/");
-      // setCurrImageName(pathParts[pathParts.length - 1]);
-      setCurrentTaskData((prevData) => {
-        if (direction === "next") {
-          return {
-            ...prevData,
-            currentIndex: parseInt(prevData.currentIndex) + 1,
-          };
-        } else if (direction === "prev") {
-          return {
-            ...prevData,
-            currentIndex: parseInt(prevData.currentIndex) - 1,
-          };
-        } else {
-          return prevData;
+          // const filteredFormData = formData
+          //   .filter((data) => Object.values(headers).includes(data.attribute))
+          //   .map((data) => {
+          //     const key = Object.keys(headers).find(
+          //       (key) => headers[key] === data.attribute
+          //     );
+          //     return { ...data, csvHeaderKey: key };
+          //   });
+
+
+          // console.log(trimmedRow)
+          // console.log(formData)
+
+          allImagePaths = imageNames.map((key) => trimmedRow[key]);
+          setCsvCurrentData(trimmedRow);
+          setImageUrls(allImagePaths);
         }
-      });
-      setSelectedCoordinates(false);
-      if (imageRef.current) {
-        imageRef.current.style.transform = "none";
-        imageRef.current.style.transformOrigin = "initial";
+
+        // Fetch image data
+        await axios.post(
+          `http://${REACT_APP_IP}:4000/get/image`,
+          {
+            imageNameArray: allImagePaths,
+            rowIndex: csvData[newIndex].rowIndex,
+            id: taskData.id
+          },
+          {
+            headers: { token }
+          }
+        );
+
+        // Update task data
+        setCurrentTaskData((prevData) => ({
+          ...prevData,
+          currentIndex: direction === "next" ? prevData.currentIndex + 1 : prevData.currentIndex - 1
+        }));
+
+        // Reset view settings
+        setSelectedCoordinates(false);
+        if (imageRef.current) {
+          imageRef.current.style.transform = "none";
+          imageRef.current.style.transformOrigin = "initial";
+        }
+        setModifiedKeys(null);
+        setZoomLevel(1);
+        setImageNotFound(true);
+        setPopUp(false);
+
+      } else {
+        toast.warning(direction === "next" ? "All images have been processed." : "You are already at the first image.");
       }
-      setModifiedKeys(null);
-      setZoomLevel(1);
-      // setImageUrls(response.data.arrayOfImages);
-      setImageNotFound(true);
-      setPopUp(false);
     } catch (error) {
-      console.log(error);
-      toast.error("Image not found!.");
+      console.error(error);
+      toast.error("Image not found!");
       setImageNotFound(false);
     }
   };
@@ -550,7 +535,7 @@ const DataMatching = () => {
         );
 
         if (!currentFormData) {
-          return prevData; 
+          return prevData;
         }
 
         const { dataFieldType, fieldLength } = currentFormData;
@@ -733,8 +718,6 @@ const DataMatching = () => {
       toast.error(error?.response?.data?.error);
     }
   };
-
-
 
   const onCompareTaskStartHandler = (taskdata) => {
     localStorage.setItem("taskdata", JSON.stringify(taskdata));
