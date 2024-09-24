@@ -387,7 +387,7 @@ const DataMatching = () => {
       return Object.keys(object).filter((key) => regex.test(object[key]));
     };
 
-    console.log(templateHeaders)
+
 
     // Extract image column names
     let imageNames = [];
@@ -417,18 +417,25 @@ const DataMatching = () => {
             Object.entries(row).map(([key, value]) => [key, typeof value === 'string' ? value.trim() : value])
           );
 
-          // const filteredFormData = formData
-          //   .filter((data) => Object.values(headers).includes(data.attribute))
-          //   .map((data) => {
-          //     const key = Object.keys(headers).find(
-          //       (key) => headers[key] === data.attribute
-          //     );
-          //     return { ...data, csvHeaderKey: key };
-          //   });
+          // ZERO SETTINGS TO BE IMPLEMENTED
+          if (templateHeaders) {
+            const formData = templateHeaders?.templetedata?.filter(
+              (data) => data.fieldType === "formField"
+            );
+            const filteredFormData = formData
+              .filter((data) => Object.values(headers).includes(data.attribute))
+              .map((data) => {
+                const key = Object.keys(headers).find(
+                  (key) => headers[key] === data.attribute
+                );
+                return { ...data, csvHeaderKey: key };
+              });
+            console.log(filteredFormData)
+          }
 
 
-          // console.log(trimmedRow)
-          // console.log(formData)
+
+
 
           allImagePaths = imageNames.map((key) => trimmedRow[key]);
           setCsvCurrentData(trimmedRow);

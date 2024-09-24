@@ -12,6 +12,7 @@ const FormDataSection = ({
   focusedIndex,
   setFocusedIndex
 }) => {
+
   const blankDefinition = templateHeaders?.blankDefination === "space" ? " " : templateHeaders?.blankDefination;
 
   return (
