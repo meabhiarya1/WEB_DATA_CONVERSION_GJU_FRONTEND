@@ -377,6 +377,8 @@ const DataMatching = () => {
   };
 
 
+  console.log(csvCurrentData)
+
   // Api for getting the image from the backend
   const onImageHandler = async (direction, currMatchingIndex, csvData, taskData) => {
     const headers = csvData[0];
@@ -423,20 +425,34 @@ const DataMatching = () => {
               (data) => data.fieldType === "formField"
             );
             const filteredFormData = formData
-              .filter((data) => Object.values(headers).includes(data.attribute))
+              .filter((data) => Object.values(headers).includes(data.attribute) && data.dataFieldType === "number")
               .map((data) => {
                 const key = Object.keys(headers).find(
                   (key) => headers[key] === data.attribute
                 );
                 return { ...data, csvHeaderKey: key };
               });
-            console.log(filteredFormData)
+
+            // Function to prepend zeros based on fieldLength
+            filteredFormData.forEach((formData) => {
+              const { csvHeaderKey, fieldLength } = formData; // Destructure the necessary fields
+              const fieldLengthNumber = parseInt(fieldLength, 10); // Convert fieldLength to an integer
+
+              // Check if trimmedObject has a matching key
+              if (trimmedRow?.hasOwnProperty(csvHeaderKey)) {
+                const currentValue = trimmedRow[csvHeaderKey]; // Get the current value from trimmedObject
+                const currentValueString = currentValue?.toString(); // Convert to string for length check
+
+                // Check if currentValue is empty or its length is less than fieldLength
+                if (currentValueString?.length < fieldLengthNumber) {
+                  const zerosToPrepend = fieldLengthNumber - currentValueString?.length;
+                  trimmedRow[csvHeaderKey] = '0'.repeat(zerosToPrepend) + currentValueString; // Prepend zeros
+                } else if (currentValueString === "") { // If currentValue is empty
+                  trimmedRow[csvHeaderKey] = '0'.repeat(fieldLengthNumber); // Just prepend the zeros
+                }
+              }
+            });
           }
-
-
-
-
-
           allImagePaths = imageNames.map((key) => trimmedRow[key]);
           setCsvCurrentData(trimmedRow);
           setImageUrls(allImagePaths);

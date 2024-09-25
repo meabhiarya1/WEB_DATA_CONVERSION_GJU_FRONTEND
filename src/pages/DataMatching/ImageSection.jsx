@@ -23,6 +23,9 @@ const ImageSection = ({
         height: "23rem",
         overflow: "auto",
         scrollbarWidth: "thin",
+        display: "center",
+        alignItems: "center",
+        justifyContent: "center",
       }}
     >
       {imageUrl ? (
@@ -56,7 +59,7 @@ const ImageSection = ({
         </div>
       )}
 
-      {!selectedCoordintes &&
+      {/* {!selectedCoordintes &&
         templateHeaders?.templetedata?.map(
           (data, index) =>
             data.pageNo === currentImageIndex && (
@@ -77,7 +80,7 @@ const ImageSection = ({
                 }}
               ></div>
             )
-        )}
+        )} */}
     </div>
   );
 };
