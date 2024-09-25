@@ -626,7 +626,7 @@ const DataMatching = () => {
           }
         }
 
-        return prevData; // Handle other field types or return unchanged
+        return prevData;
       }
     });
   };
@@ -700,6 +700,7 @@ const DataMatching = () => {
     });
     setSelectedCoordinates(true);
   };
+
 
   const onTaskStartHandler = async (taskData) => {
     try {
