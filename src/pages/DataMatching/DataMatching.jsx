@@ -377,8 +377,6 @@ const DataMatching = () => {
   };
 
 
-  console.log(csvCurrentData)
-
   // Api for getting the image from the backend
   const onImageHandler = async (direction, currMatchingIndex, csvData, taskData) => {
     const headers = csvData[0];
