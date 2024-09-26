@@ -25,6 +25,7 @@ export function AllUser() {
   const [currentUser, setCurrentUser] = useState(null);
   const [removeUserId, setRemoveUserId] = useState("");
   const [confirmationModal, setConfirmationModal] = useState(false);
+  const [taskType, setTaskType] = useState("ALL")
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -181,6 +182,20 @@ export function AllUser() {
   };
 
 
+  const filteredUsers = taskType === "ALL"
+    ? users
+    : taskType === "admin"
+      ? users?.filter(user => user?.role === "Admin")
+      : taskType === "operator"
+        ? users?.filter(user => user?.role === "Operator")
+        : taskType === "moderator"
+          ? users?.filter(user => user?.role === "Moderator")
+          : users
+
+  console.log(filteredUsers)
+
+
+
   return (
     <div className="flex justify-center items-center bg-gradient-to-r from-blue-400 to-blue-600 h-[100vh] pt-20">
       <section className="md:mx-auto w-full max-w-7xl   px-12 py-10 bg-white rounded-xl">
@@ -198,6 +213,40 @@ export function AllUser() {
                 Add New User
               </button>
             </div>}
+        </div>
+        <div>
+          <div className="hidden sm:block mt-4">
+            <nav className="flex gap-6" aria-label="Tabs">
+              <button
+                onClick={() => setTaskType("All")}
+                className={`shrink-0 rounded-lg p-2 text-sm border-2  font-medium ${taskType === "All" && "bg-sky-100 text-sky-600"} hover:bg-sky-100 hover:text-gray-700`}
+              >
+                ALL USERS
+              </button>
+
+              <button
+                onClick={() => setTaskType("admin")}
+                className={`shrink-0 rounded-lg p-2 text-sm border-2  font-medium ${taskType === "admin" && "bg-sky-100 text-sky-600"} hover:bg-sky-100 hover:text-gray-700`}
+              >
+                ADMIN
+              </button>
+
+              <button
+                onClick={() => setTaskType("operator")}
+                className={`shrink-0 border-2  rounded-lg ${taskType === "operator" && "bg-sky-100 text-sky-600"} p-2 text-sm font-medium hover:bg-sky-100`}
+                aria-current="page"
+              >
+                OPERATOR
+              </button>
+              <button
+                onClick={() => setTaskType("moderator")}
+                className={`shrink-0 border-2  rounded-lg ${taskType === "moderator" && "bg-sky-100 text-sky-600"} p-2 text-sm font-medium hover:bg-sky-100`}
+                aria-current="page"
+              >
+                MODERATOR
+              </button>
+            </nav>
+          </div>
         </div>
         <div className="mt-6 flex flex-col">
           <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -246,7 +295,7 @@ export function AllUser() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white ">
-                    {users?.map((user, index) => (
+                    {filteredUsers?.map((user, index) => (
                       <tr key={index}>
                         <td className="whitespace-nowrap px-4 py-4">
                           <div className="flex items-center">
