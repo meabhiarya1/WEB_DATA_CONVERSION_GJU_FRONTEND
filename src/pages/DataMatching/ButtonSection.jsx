@@ -12,7 +12,7 @@ const ButtonSection = ({
   return (
     <div className="flex justify-between">
       <h3 className="ms-5 text-lg font-semibold py-3 text-white">
-        Data No : {currentIndex} out of {csvData.length - 1}
+        Data No : {currentIndex} out of {csvData.length}
       </h3>
       <div className="flex justify-center my-3">
         <button

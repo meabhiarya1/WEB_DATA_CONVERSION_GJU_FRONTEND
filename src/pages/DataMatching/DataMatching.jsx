@@ -192,7 +192,7 @@ const DataMatching = () => {
           return;
         }
 
-        if (keyValue.length !== fieldLength) {
+        if (keyValue.length > fieldLength) {
           setErrorKey(csvHeaderKey); // Set error key
           toast.warning(`The length of ${csvHeaderKey} should be ${fieldLength}.`);
           return;
@@ -211,7 +211,7 @@ const DataMatching = () => {
           return;
         }
 
-        if (keyValue.length !== fieldLength) {
+        if (keyValue.length > fieldLength) {
           setErrorKey(csvHeaderKey); // Set error key
           toast.warning(`The length of ${csvHeaderKey} should be ${fieldLength}.`);
           return;
@@ -261,6 +261,8 @@ const DataMatching = () => {
       toast.error(error.message);
     }
   };
+
+  console.log(csvData)
 
   // Sortcuts buttons
   useEffect(() => {
@@ -377,6 +379,7 @@ const DataMatching = () => {
     }
   };
 
+  console.log(csvData)
 
   // Api for getting the image from the backend
   const onImageHandler = async (direction, currMatchingIndex, csvData, taskData) => {
@@ -456,13 +459,14 @@ const DataMatching = () => {
           setCsvCurrentData(trimmedRow);
           setImageUrls(allImagePaths);
         }
+        console.log(csvData[newIndex]);
 
         // Fetch image data
         await axios.post(
           `http://${REACT_APP_IP}:4000/get/image`,
           {
             imageNameArray: allImagePaths,
-            rowIndex: csvData[newIndex].rowIndex,
+            rowIndex: csvData[newIndex]?.rowIndex,
             id: taskData.id
           },
           {
@@ -565,6 +569,7 @@ const DataMatching = () => {
 
         if (dataFieldType === "number") {
           if (!/^\d*$/.test(trimmedValue)) {
+            console.log("working1", trimmedValue, prevData)
             toast.error("Invalid number format.");
             return prevData;
           } else if (trimmedValue.length > maxLength) {
@@ -798,6 +803,7 @@ const DataMatching = () => {
     }
   };
 
+  console.log(currentIndex)
 
   return (
     <>
@@ -896,7 +902,7 @@ const DataMatching = () => {
                         >
                           Next
                         </button> */}
-                          {currentIndex === csvData.length - 1 && (
+                          {currentIndex === csvData.length  && (
                             <button
                               onClick={() => setConfirmationModal(true)}
                               className="px-4 py-2 bg-teal-600 mx-2 text-white rounded-3xl hover:bg-teal-700"

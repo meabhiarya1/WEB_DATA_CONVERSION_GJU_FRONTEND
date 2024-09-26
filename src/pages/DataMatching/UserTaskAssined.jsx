@@ -9,6 +9,7 @@ const UserTaskAssined = ({
   setCurrentTaskData,
 }) => {
   const [loadingTaskId, setLoadingTaskId] = useState(null);
+  const [taskType, setTaskType] = useState("ALL")
 
   const handleStartClick = (taskData) => {
     if (taskData?.taskStatus) {
@@ -22,6 +23,16 @@ const UserTaskAssined = ({
     setTimeout(() => setLoadingTaskId(null), 3000);
   };
 
+  const filteredTasks = taskType === "ALL"
+    ? allTasks
+    : taskType === "pending"
+      ? allTasks?.filter(task => task?.taskStatus === false)
+      : taskType === "completed"
+        ? allTasks?.filter(task => task?.taskStatus === true)
+        : allTasks;
+
+
+
   return (
     <div className="h-[100vh] flex justify-center bg-gradient-to-r from-blue-400 to-blue-600 items-center templatemapping">
       <div className="">
@@ -30,6 +41,45 @@ const UserTaskAssined = ({
           <div className="flex flex-col space-y-4  md:flex-row md:items-center md:justify-between md:space-y-0">
             <div>
               <h2 className="text-3xl font-semibold">Assigned Tasks</h2>
+            </div>
+            <div>
+              <div>
+                <div className="sm:hidden">
+                  <label htmlFor="Tab" className="sr-only">Tab</label>
+                  <select id="Tab" className="w-full rounded-md border-gray-200">
+                    <option>Settings</option>
+                    <option>Messages</option>
+                    <option>Archive</option>
+                    <option select>Notifications</option>
+                  </select>
+                </div>
+
+                <div className="hidden sm:block mt-4">
+                  <nav className="flex gap-6" aria-label="Tabs">
+                    <button
+                      onClick={() => setTaskType("All")}
+                      className={`shrink-0 rounded-lg p-2 text-sm font-medium ${taskType === "All" && "bg-sky-100 text-sky-600"} hover:bg-sky-100 hover:text-gray-700`}
+                    >
+                      ALL TASKS
+                    </button>
+
+                    <button
+                      onClick={() => setTaskType("completed")}
+                      className={`shrink-0 rounded-lg p-2 text-sm font-medium ${taskType === "completed" && "bg-sky-100 text-sky-600"} hover:bg-sky-100 hover:text-gray-700`}
+                    >
+                      COMPLETED
+                    </button>
+
+                    <button
+                      onClick={() => setTaskType("pending")}
+                      className={`shrink-0 rounded-lg ${taskType === "pending" && "bg-sky-100 text-sky-600"} p-2 text-sm font-medium hover:bg-sky-100`}
+                      aria-current="page"
+                    >
+                      PENDING
+                    </button>
+                  </nav>
+                </div>
+              </div>
             </div>
           </div>
           <div className="mt-6 flex flex-col">
@@ -62,9 +112,9 @@ const UserTaskAssined = ({
                       </div>
                     </div>
                     <div className="divide-y divide-gray-200 bg-white overflow-y-auto max-h-[300px]">
-                      {allTasks?.map((taskData) => (
+                      {filteredTasks?.map((taskData) => (
                         <div key={taskData.id}>
-                          <div  className="flex  py-2 w-full">
+                          <div className="flex  py-2 w-full">
                             <div className="whitespace-nowrap w-[150px] px-4">
                               <div className="text-md text-center">
                                 {taskData.templateName}
@@ -90,11 +140,10 @@ const UserTaskAssined = ({
                             <div className="whitespace-nowrap w-[150px] px-4">
                               <div className="text-md text-center">
                                 <span
-                                  className={`inline-flex items-center justify-center rounded-full ${
-                                    !taskData.taskStatus
-                                      ? "bg-amber-100 text-amber-700"
-                                      : "bg-emerald-100 text-emerald-700"
-                                  } px-2.5 py-0.5 `}
+                                  className={`inline-flex items-center justify-center rounded-full ${!taskData.taskStatus
+                                    ? "bg-amber-100 text-amber-700"
+                                    : "bg-emerald-100 text-emerald-700"
+                                    } px-2.5 py-0.5 `}
                                 >
                                   {!taskData.taskStatus ? (
                                     <svg
@@ -143,11 +192,10 @@ const UserTaskAssined = ({
                                 onClick={() => handleStartClick(taskData)}
                                 type="button"
                                 disabled={loadingTaskId === taskData.id}
-                                className={`rounded-3xl border border-indigo-500 bg-indigo-500 px-6 py-1 font-semibold text-white ${
-                                  loadingTaskId === taskData.id
-                                    ? "opacity-50 cursor-not-allowed"
-                                    : ""
-                                }`}
+                                className={`rounded-3xl border border-indigo-500 bg-indigo-500 px-6 py-1 font-semibold text-white ${loadingTaskId === taskData.id
+                                  ? "opacity-50 cursor-not-allowed"
+                                  : ""
+                                  }`}
                               >
                                 {loadingTaskId === taskData.id ? (
                                   <div className="flex items-center justify-center">
@@ -192,11 +240,10 @@ const UserTaskAssined = ({
                           <div className="whitespace-nowrap w-1/6">
                             <div className="text-md text-center">
                               <span
-                                className={`inline-flex items-center justify-center rounded-full ${
-                                  !taskData.taskStatus
-                                    ? "bg-amber-100 text-amber-700"
-                                    : "bg-emerald-100 text-emerald-700"
-                                } px-2.5 py-0.5 `}
+                                className={`inline-flex items-center justify-center rounded-full ${!taskData.taskStatus
+                                  ? "bg-amber-100 text-amber-700"
+                                  : "bg-emerald-100 text-emerald-700"
+                                  } px-2.5 py-0.5 `}
                               >
                                 {!taskData.taskStatus ? (
                                   <svg

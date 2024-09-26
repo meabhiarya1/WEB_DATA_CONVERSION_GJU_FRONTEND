@@ -8,10 +8,22 @@ const AdminMatchingTasks = ({
   onDownloadHandler,
   setTaskEdit,
   setTaskEditId,
+  taskType
 }) => {
+
+  const filteredTasks = taskType === "ALL"
+    ? matchingTask
+    : taskType === "pending"
+      ? matchingTask?.filter(task => task?.taskStatus === false)
+      : taskType === "completed"
+        ? matchingTask?.filter(task => task?.taskStatus === true)
+        : matchingTask;
+
+
+
   return (
     <div>
-      {matchingTask?.map((taskData) => (
+      {filteredTasks?.map((taskData) => (
         <div key={taskData.id} className="flex  justify-center">
           <div className="whitespace-nowrap w-[100px] py-2">
             <div className="text-center text-md ">{taskData.templateName}</div>
@@ -33,11 +45,10 @@ const AdminMatchingTasks = ({
           <div className="whitespace-nowrap w-[100px] py-2">
             <div className="text-md text-center">
               <span
-                className={`inline-flex items-center justify-center rounded-full ${
-                  !taskData.taskStatus
-                    ? "bg-amber-100 text-amber-700"
-                    : "bg-emerald-100 text-emerald-700"
-                } px-2.5 py-0.5`}
+                className={`inline-flex items-center justify-center rounded-full ${!taskData.taskStatus
+                  ? "bg-amber-100 text-amber-700"
+                  : "bg-emerald-100 text-emerald-700"
+                  } px-2.5 py-0.5`}
               >
                 {!taskData.taskStatus ? (
                   <svg
@@ -76,11 +87,10 @@ const AdminMatchingTasks = ({
           <div className="whitespace-nowrap text-center w-[100px] py-2">
             <button
               onClick={() => onCompleteHandler(taskData)}
-              className={`rounded-3xl px-4 py-1 font-semibold ${
-                taskData.taskStatus
-                  ? "bg-indigo-500 text-white border border-indigo-500"
-                  : "bg-gray-400 text-gray-600 cursor-not-allowed"
-              }`}
+              className={`rounded-3xl px-4 py-1 font-semibold ${taskData.taskStatus
+                ? "bg-indigo-500 text-white border border-indigo-500"
+                : "bg-gray-400 text-gray-600 cursor-not-allowed"
+                }`}
               disabled={!taskData.taskStatus}
             >
               <MdOutlineRestartAlt />
@@ -89,11 +99,10 @@ const AdminMatchingTasks = ({
           <div className="whitespace-nowrap text-center w-[100px] py-2">
             <button
               onClick={() => onDownloadHandler(taskData)}
-              className={`rounded-3xl px-4 py-1 font-semibold ${
-                taskData.taskStatus
-                  ? "bg-indigo-500 text-white border border-indigo-500"
-                  : "bg-gray-400 text-gray-600 cursor-not-allowed"
-              }`}
+              className={`rounded-3xl px-4 py-1 font-semibold ${taskData.taskStatus
+                ? "bg-indigo-500 text-white border border-indigo-500"
+                : "bg-gray-400 text-gray-600 cursor-not-allowed"
+                }`}
               disabled={!taskData.taskStatus}
             >
               <FaCloudDownloadAlt />

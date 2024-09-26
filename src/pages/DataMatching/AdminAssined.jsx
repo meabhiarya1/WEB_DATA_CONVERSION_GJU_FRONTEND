@@ -18,6 +18,7 @@ const AdminAssined = () => {
   const [taskEdit, setTaskEdit] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
   const [taskEditId, setTaskEditId] = useState("");
+  const [taskType, setTaskType] = useState("ALL")
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -302,6 +303,7 @@ const AdminAssined = () => {
     }
   };
 
+
   return (
     <div className="h-[100vh] flex justify-center items-center bg-gradient-to-r from-blue-400 to-blue-600 templatemapping pt-20">
       <div className="">
@@ -311,6 +313,47 @@ const AdminAssined = () => {
             <div>
               <h2 className="text-3xl font-semibold">Assigned Tasks</h2>
             </div>
+
+            <div>
+              <div>
+                <div className="sm:hidden">
+                  <label htmlFor="Tab" className="sr-only">Tab</label>
+                  <select id="Tab" className="w-full rounded-md border-gray-200">
+                    <option>Settings</option>
+                    <option>Messages</option>
+                    <option>Archive</option>
+                    <option select>Notifications</option>
+                  </select>
+                </div>
+
+                <div className="hidden sm:block mt-4">
+                  <nav className="flex gap-6" aria-label="Tabs">
+                    <button
+                      onClick={() => setTaskType("All")}
+                      className={`shrink-0 rounded-lg p-2 text-sm font-medium ${taskType === "All" && "bg-sky-100 text-sky-600"} hover:bg-sky-100 hover:text-gray-700`}
+                    >
+                      ALL TASKS
+                    </button>
+
+                    <button
+                      onClick={() => setTaskType("completed")}
+                      className={`shrink-0 rounded-lg p-2 text-sm font-medium ${taskType === "completed" && "bg-sky-100 text-sky-600"} hover:bg-sky-100 hover:text-gray-700`}
+                    >
+                      COMPLETED
+                    </button>
+
+                    <button
+                      onClick={() => setTaskType("pending")}
+                      className={`shrink-0 rounded-lg ${taskType === "pending" && "bg-sky-100 text-sky-600"} p-2 text-sm font-medium hover:bg-sky-100`}
+                      aria-current="page"
+                    >
+                      PENDING
+                    </button>
+                  </nav>
+                </div>
+              </div>
+            </div>
+
           </div>
           <div className="mt-6 flex flex-col">
             <div className="-mx-4 -my-2 overflow-x-auto  sm:-mx-6 lg:-mx-8">
@@ -359,6 +402,7 @@ const AdminAssined = () => {
                         matchingTask={matchingTask}
                         onDownloadHandler={onDownloadHandler}
                         setTaskEditId={setTaskEditId}
+                        taskType={taskType}
                       />
                     </div>
                   </div>
