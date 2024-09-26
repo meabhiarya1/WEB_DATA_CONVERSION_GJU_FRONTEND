@@ -56,6 +56,7 @@ const DataMatching = () => {
         inputRefs.current[index].focus();
       }
     }
+    setErrorKey(null)
   }, [errorKey, csvCurrentData, inputRefs]);
 
 
