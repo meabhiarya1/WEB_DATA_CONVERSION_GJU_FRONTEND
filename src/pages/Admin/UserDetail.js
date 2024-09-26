@@ -7,10 +7,10 @@ function UserDetail() {
   const [userDetails, setUserDetails] = useState([]);
   const { id } = useParams();
   const [currentPage, setCurrentPage] = useState(1);
+  const [taskType, setTaskType] = useState("All");
+  const [selectedDate, setSelectedDate] = useState("");
   const rowsPerPage = 8;
   const token = JSON.parse(localStorage.getItem("userData"));
-  console.log(token)
-
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -57,9 +57,38 @@ function UserDetail() {
     );
   }
 
-  const sortedUserDetails = [...userDetails]?.sort(
+  // Filter user details based on task type and selected date
+  const filterUserDetails = (details) => {
+    let filteredDetails = details;
+
+    // Filter by taskType (login, logout, or all)
+    if (taskType !== "All") {
+      filteredDetails = filteredDetails.filter(
+        (item) => item.action.toLowerCase() === taskType.toLowerCase()
+      );
+    }
+
+    // Filter by selected date
+    if (selectedDate) {
+      filteredDetails = filteredDetails.filter((item) => {
+        const itemDate = new Date(item.timestamp).toLocaleDateString("en-GB");
+        const selectedDateFormatted = new Date(selectedDate).toLocaleDateString(
+          "en-GB"
+        );
+        return itemDate === selectedDateFormatted;
+      });
+    }
+
+    return filteredDetails;
+  };
+
+  const filteredUserDetails = filterUserDetails(userDetails);
+
+  const sortedUserDetails = [...filteredUserDetails]?.sort(
     (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
   );
+
+  const currentRows = sortedUserDetails.slice(indexOfFirstRow, indexOfLastRow); // Get current rows after filtering
 
   return (
     <div className="flex justify-center items-center bg-gradient-to-r from-blue-400 to-blue-600 h-[100vh] pt-20">
@@ -73,6 +102,45 @@ function UserDetail() {
               >
                 Back
               </Link>
+            </div>
+            <div className="hidden sm:block ml-2 p-2">
+              <nav className="flex gap-6" aria-label="Tabs">
+                <button
+                  onClick={() => setTaskType("All")}
+                  className={`shrink-0 rounded-lg p-2 text-sm border-2 font-medium ${taskType === "All" && "bg-sky-100 text-sky-600"} hover:bg-sky-100 hover:text-gray-700`}
+                >
+                  ALL USER
+                </button>
+
+                <button
+                  onClick={() => setTaskType("login")}
+                  className={`shrink-0 rounded-lg p-2 text-sm border-2 font-medium ${taskType === "login" && "bg-sky-100 text-sky-600"} hover:bg-sky-100 hover:text-gray-700`}
+                >
+                  LOGIN
+                </button>
+
+                <button
+                  onClick={() => setTaskType("logout")}
+                  className={`shrink-0 border-2 rounded-lg ${taskType === "logout" && "bg-sky-100 text-sky-600"} p-2 text-sm font-medium hover:bg-sky-100`}
+                  aria-current="page"
+                >
+                  LOGOUT
+                </button>
+
+                {/* New button for DATA SELECTION */}
+                <button
+                  className={`shrink-0 border-2 rounded-lg ${taskType === "dataSelection" && "bg-sky-100 text-sky-600"} p-2 text-sm font-medium hover:bg-sky-100 hover:text-gray-700`}
+                >
+                  DATA SELECTION
+                </button>
+
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="ml-2 p-2 border rounded-lg text-sm"
+                />
+              </nav>
             </div>
 
             <div className="mx-4 border-2 rounded-xl">
@@ -94,7 +162,8 @@ function UserDetail() {
               </div>
 
               <div className="divide-y divide-gray-200 text-center overflow-y-auto h-[280px]">
-                {sortedUserDetails.map((data, index) => {
+                {currentRows.map((data, index) => {
+                  const globalIndex = indexOfFirstRow + index + 1; // Correct global index for serial number
                   const dateObject = new Date(data?.timestamp);
                   const date = dateObject.toLocaleDateString("en-GB");
                   const timeOptions = {
@@ -111,7 +180,7 @@ function UserDetail() {
                   return (
                     <div key={index} className="even:bg-blue-50 flex">
                       <div className="whitespace-nowrap px-4 py-3 font-medium text-gray-900 w-1/4">
-                        {indexOfFirstRow + index + 1}
+                        {globalIndex} {/* Show correct serial number */}
                       </div>
                       <div className="whitespace-nowrap px-4 py-3 text-gray-700 w-1/4">
                         {data.action}

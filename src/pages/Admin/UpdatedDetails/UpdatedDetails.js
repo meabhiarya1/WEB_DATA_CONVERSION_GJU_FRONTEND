@@ -20,6 +20,7 @@ function UpdatedDetails() {
   const [updatedImages, setUpdatedImages] = useState([]);
   const [openImageDetails, setImageDetails] = useState(null);
   let token = JSON.parse(localStorage.getItem("userData"));
+  const [taskType, setTaskType] = useState("ALL")
   const { id } = useParams();
 
 
@@ -87,7 +88,14 @@ function UpdatedDetails() {
   const renderTableRows = () => {
     const startIndex = (currentPage - 1) * rowsPerPage;
     const selectedRows = allTasks?.slice(startIndex, startIndex + rowsPerPage);
-    return selectedRows.map((taskData, index) => (
+    const filteredTasks = taskType === "ALL"
+      ? selectedRows
+      : taskType === "pending"
+        ? selectedRows?.filter(task => task?.taskStatus === false)
+        : taskType === "completed"
+          ? selectedRows?.filter(task => task?.taskStatus === true)
+          : selectedRows;
+    return filteredTasks?.map((taskData, index) => (
       <div key={taskData.id} className="flex  py-2 w-full">
         <div className="whitespace-nowrap w-[150px] px-4">
           <div className="text-md text-center">{index + 1}</div>
@@ -205,6 +213,8 @@ function UpdatedDetails() {
           setCurrentPage={setCurrentPage}
           currentPage={currentPage}
           totalPages={totalPages}
+          setTaskType={setTaskType}
+          taskType={taskType}
         />
       ) : (
         <Fragment>
