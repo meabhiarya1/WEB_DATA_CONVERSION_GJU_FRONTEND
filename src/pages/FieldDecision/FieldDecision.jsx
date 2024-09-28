@@ -8,6 +8,7 @@ import FormField from "./FormField";
 import QuestionField from "./QuestionField";
 import CheckedDataConfirmation from "./CheckedDataConfirmation";
 
+
 const FieldDecision = () => {
   const [checkedData, setCheckedData] = useState(null);
   const [formFields, setFormField] = useState([]);
@@ -133,7 +134,8 @@ const FieldDecision = () => {
       setLoading(false);
       toast.error(error.message);
     }
-  };
+  }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-400 to-blue-600 py-6 flex flex-col justify-center sm:py-12">

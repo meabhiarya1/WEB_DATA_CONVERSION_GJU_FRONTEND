@@ -103,7 +103,6 @@ const ImageScanner = () => {
         const filteredAllCurrentData = updatedAllCurrentData.filter(
           (item) => item.row[columnName] !== currentRowData.row[columnName]
         );
-        console.log(filteredAllCurrentData);
         if (filteredUpdatedDuplicateData.length !== 0) {
           setDuplicatesData(filteredUpdatedDuplicateData);
         } else {
@@ -226,7 +225,6 @@ const ImageScanner = () => {
   };
 
 
-  console.log(currentRowData)
 
   const onRemoveDuplicateHandler = async (index, rowIndex, colName) => {
     const currentData = [...allCurrentData];

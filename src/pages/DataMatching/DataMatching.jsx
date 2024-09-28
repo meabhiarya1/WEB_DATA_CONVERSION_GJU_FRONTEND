@@ -169,7 +169,7 @@ const DataMatching = () => {
         const blankDefinition = templateHeaders?.blankDefination === "space" ? " " : templateHeaders?.blankDefination;
 
         if (keyValue.includes(templateHeaders?.patternDefinition)) {
-          setErrorKey(csvHeaderKey); // Set error key
+          setErrorKey(csvHeaderKey);
           toast.warning(`The value for ${csvHeaderKey} includes the pattern definition ${"    " + templateHeaders?.patternDefinition}.`);
           return;
         }
@@ -181,45 +181,45 @@ const DataMatching = () => {
         }
 
         if (keyValue.length !== fieldLength) {
-          setErrorKey(csvHeaderKey); // Set error key
+          setErrorKey(csvHeaderKey);
           toast.warning(`The length of ${csvHeaderKey} should be ${fieldLength}.`);
           return;
         }
       } else if (dataFieldType === "text") {
         if (keyValue.trim().length === 0) {
-          setErrorKey(csvHeaderKey); // Set error key
+          setErrorKey(csvHeaderKey);
           toast.warning(`The ${csvHeaderKey} is empty.`);
           return;
         }
 
         if (keyValue.length > fieldLength) {
-          setErrorKey(csvHeaderKey); // Set error key
+          setErrorKey(csvHeaderKey);
           toast.warning(`The length of ${csvHeaderKey} should be ${fieldLength}.`);
           return;
         }
 
         const isValidText = /^[A-Za-z\s]+$/.test(keyValue);
         if (!isValidText) {
-          setErrorKey(csvHeaderKey); // Set error key
+          setErrorKey(csvHeaderKey);
           toast.warning(`The ${csvHeaderKey} should be text.`);
           return;
         }
       } else if (dataFieldType === "alphanumeric") {
         if (keyValue === " " || keyValue.length === 0) {
-          setErrorKey(csvHeaderKey); // Set error key
+          setErrorKey(csvHeaderKey);
           toast.warning(`The ${csvHeaderKey} is empty.`);
           return;
         }
-
+        console.log(keyValue.length, fieldLength)
         if (keyValue.length > fieldLength) {
-          setErrorKey(csvHeaderKey); // Set error key
+          setErrorKey(csvHeaderKey);
           toast.warning(`The length of ${csvHeaderKey} should be ${fieldLength}.`);
           return;
         }
 
         const isValidAlphanumeric = /^[a-zA-Z0-9\s]+$/.test(keyValue);
         if (!isValidAlphanumeric) {
-          setErrorKey(csvHeaderKey); // Set error key
+          setErrorKey(csvHeaderKey);
           toast.warning(`Alphanumeric value ${keyValue} is not valid.`);
           return;
         }
@@ -261,8 +261,6 @@ const DataMatching = () => {
       toast.error(error.message);
     }
   };
-
-  console.log(csvData)
 
   // Sortcuts buttons
   useEffect(() => {
@@ -379,8 +377,6 @@ const DataMatching = () => {
     }
   };
 
-  console.log(csvData)
-
   // Api for getting the image from the backend
   const onImageHandler = async (direction, currMatchingIndex, csvData, taskData) => {
     const headers = csvData[0];
@@ -404,7 +400,6 @@ const DataMatching = () => {
     }
     setImageColNames(imageNames);
 
-
     try {
       let newIndex = currMatchingIndex;
       let allImagePaths;
@@ -412,6 +407,11 @@ const DataMatching = () => {
       if (direction === "initial" || (newIndex > 0 && newIndex < csvData.length)) {
         if (direction !== "initial") {
           newIndex = direction === "next" ? newIndex + 1 : newIndex - 1;
+
+          if (newIndex === 0) {
+            newIndex = 1;
+          }
+
           setCurrentIndex(newIndex);
         }
 
@@ -459,7 +459,6 @@ const DataMatching = () => {
           setCsvCurrentData(trimmedRow);
           setImageUrls(allImagePaths);
         }
-        console.log(csvData[newIndex]);
 
         // Fetch image data
         await axios.post(
@@ -530,7 +529,8 @@ const DataMatching = () => {
 
     setCsvCurrentData((prevData) => {
       const previousValue = prevData[key];
-      const trimmedValue = newValue.trim(); // Trim leading/trailing spaces
+      const trimmedValue = newValue.trim();
+      console.log(newValue, trimmedValue);
 
       if (matchedCoordinate?.fieldType === "questionsField") {
         if (templateHeaders?.isPermittedToEdit) {
@@ -569,7 +569,7 @@ const DataMatching = () => {
 
         if (dataFieldType === "number") {
           if (!/^\d*$/.test(trimmedValue)) {
-            console.log("working1", trimmedValue, prevData)
+            console.log("working", trimmedValue)
             toast.error("Invalid number format.");
             return prevData;
           } else if (trimmedValue.length > maxLength) {
@@ -803,7 +803,6 @@ const DataMatching = () => {
     }
   };
 
-  console.log(currentIndex)
 
   return (
     <>
@@ -902,7 +901,7 @@ const DataMatching = () => {
                         >
                           Next
                         </button> */}
-                          {currentIndex === csvData.length  && (
+                          {currentIndex === csvData.length && (
                             <button
                               onClick={() => setConfirmationModal(true)}
                               className="px-4 py-2 bg-teal-600 mx-2 text-white rounded-3xl hover:bg-teal-700"
