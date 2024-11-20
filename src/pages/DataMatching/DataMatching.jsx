@@ -310,8 +310,10 @@ const DataMatching = () => {
           zoomOutHandler();
           setSelectedCoordinates(true);
         } else if (event.shiftKey && (event.key === "I" || event.key === "i")) {
+          event.preventDefault();
           onInialImageHandler();
         } else if (event.shiftKey && (event.key === "p" || event.key === "P")) {
+          event.preventDefault();
           onImageHandler("prev", currentIndex, csvData, currentTaskData);
         }
       };
