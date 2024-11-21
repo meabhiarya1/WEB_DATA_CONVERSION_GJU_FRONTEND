@@ -8,8 +8,6 @@ import {
   onGetVerifiedUserHandler,
   REACT_APP_IP,
 } from "../../services/common";
-import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { useNavigate } from "react-router-dom";
 import AdminAssined from "./AdminAssined";
 import UserTaskAssined from "./UserTaskAssined";
@@ -860,49 +858,6 @@ const DataMatching = () => {
                     <div className="flex-col">
                       <div className="flex float-right gap-4 mt-2 mr-4 ">
                         <div className="">
-                          {/* <button
-                          onClick={() => setPopUp(true)}
-                          className=" px-6 py-2 bg-blue-600 text-white rounded-3xl mx-2 hover:bg-blue-700"
-                        >
-                          Back
-                        </button> */}
-                          {/* <Button
-                          onClick={onCsvUpdateHandler}
-                          variant="contained"
-                          color="info"
-                        >
-                          update
-                        </Button> */}
-
-                          {/* <button
-                          className="px-6 py-2 bg-blue-600 text-white rounded-3xl mx-2 hover:bg-blue-700"
-                          onClick={() =>
-                            onImageHandler(
-                              "prev",
-                              currentIndex,
-                              csvData,
-                              currentTaskData
-                            )
-                          }
-                          endIcon={<ArrowBackIosIcon />}
-                        >
-                          Prev
-                        </button> */}
-
-                          {/* <button
-                          className="px-6 py-2 bg-blue-600 text-white rounded-3xl mx-2 hover:bg-blue-700"
-                          onClick={() =>
-                            onImageHandler(
-                              "next",
-                              currentIndex,
-                              csvData,
-                              currentTaskData
-                            )
-                          }
-                          endIcon={<ArrowForwardIosIcon />}
-                        >
-                          Next
-                        </button> */}
                           {currentIndex === csvData.length && (
                             <button
                               onClick={() => setConfirmationModal(true)}
