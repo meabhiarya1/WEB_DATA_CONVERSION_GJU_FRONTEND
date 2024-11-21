@@ -119,19 +119,16 @@ export default function Navbar() {
     {
       name: "Logout",
       onClick: async () => {
-        console.log("logout --1")
         try {
           // Fixed URL with http://
           await axios.post(`http://${REACT_APP_IP}:4000/users/logout`, {
             userId: userData.id,
           });
           localStorage.clear();
-          console.log("logout --mnew")
           setUserData({});
           datactx.modifyIslogin(false);
           setIsUserMenuOpen(false);
         } catch (error) {
-          console.log("logout -2")
           localStorage.clear();
           console.log(error);
         } finally {
