@@ -203,7 +203,7 @@ const AdminAssined = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            token: token
+            token: token,
           },
         }
       );
@@ -212,33 +212,39 @@ const AdminAssined = () => {
         throw new Error("Network response was not ok");
       }
 
+      // Extract filename from Content-Disposition header
+      const contentDisposition = response.headers.get("Content-Disposition");
+
+      let filename = "download.csv"; // Default fallback name
+      if (contentDisposition) {
+        // Use regex to extract filename from the header
+        const matches = contentDisposition.match(/filename="([^"]+)"/);
+        if (matches && matches[1]) {
+          filename = matches[1]; // Assign extracted filename
+        }
+      }
+
+      filename = filename?.split('_')[2];
+
+      // Create a blob and trigger download
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-
-      // Extract the filename from the response headers if provided
-      const contentDisposition = response.headers.get("Content-Disposition");
-      let filename = "download.csv";
-      if (
-        contentDisposition &&
-        contentDisposition.indexOf("attachment") !== -1
-      ) {
-        const matches = /filename="([^"]+)"/.exec(contentDisposition);
-        if (matches && matches[1]) {
-          filename = matches[1];
-        }
-      }
-
-      a.download = filename;
+      a.download = filename; // Use the extracted or default filename
       document.body.appendChild(a);
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
+
+      // Display the filename to the user
+      toast.success(`File downloaded: ${filename}`);
     } catch (error) {
       console.error("Error downloading the file:", error);
+      toast.error("An error occurred while downloading the file.");
     }
   };
+
 
   const onCompleteHandler = async (currentTask) => {
     try {

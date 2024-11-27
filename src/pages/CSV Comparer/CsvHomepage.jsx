@@ -31,7 +31,11 @@ const CsvHomepage = () => {
       const mergedData = mergeCsvData(firstCsvData, secondCsvData);
       const mergedCsv = Papa.unparse(mergedData.data);
       toast.success("CSV files merged successfully.");
-      downloadCsv(mergedCsv, 'merged.csv');
+
+      const match = firstCsv?.name.match(/^\d+/);
+      const result = match ? `${match[0]}.csv` : null;
+      downloadCsv(mergedCsv, result ? result : firstCsv);
+
     } catch (error) {
       toast.error("Error merging CSV files. Please try again.");
     } finally {
