@@ -1,12 +1,11 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 
-export const SERVER_IP = "192.168.1.51:4000";
-export const REACT_APP_IP = "192.168.1.51";
+export const SERVER_IP = "192.168.1.43:4000";
+export const REACT_APP_IP = "192.168.1.43";
 
 export const onGetTemplateHandler = async () => {
   const token = JSON.parse(localStorage.getItem("userData"));
-
   try {
     const response = await axios.post(
       `http://${REACT_APP_IP}:4000/get/templetes`,
