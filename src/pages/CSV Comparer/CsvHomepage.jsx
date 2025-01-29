@@ -13,11 +13,62 @@ const EXCLUDED_COLUMNS = [
   "Updated Col. Name"
 ];
 
+const mainHeaders = [
+  "Part_A.Sno", "Part_A.Barcode", "Answer Sheet No", "Rollno", "Paper_ID", "Exam_Code",
+  "Part_A.Front Side Image", "Part_A.Back Side Image", "Part_A.Remarks", "Part_A.Edited", "Correction",
+  "Part_C.Sno", "Part_C.Barcode", "Marks_Obt", "Max_Marks", "Ans_Book_Code", "Packet_ID",
+  "Part_C.Front Side Image", "Part_C.Back Side Image", "Part_C.Remarks", "Part_C.Edited",
+  "FLD_1", "FLD_2", "FLD_3", "FLD_4", "FLD_5", "FLD_6", "FLD_7", "FLD_8", "FLD_9", "FLD_10",
+  "FLD_11", "FLD_12", "FLD_13", "FLD_14", "FLD_15"
+];
+const aPartData = [
+  {
+    "SLNO": "1",
+    "BAR1": "1234",
+    "ROLL": "A123",
+    "ID": "EX01",
+    "E_CODE": "E123",
+    "Front side Image": "image1_front.png",
+    "Back side Image": "image1_back.png",
+  },
+  {
+    "SLNO": "2",
+    "BAR1": "5678",
+    "ROLL": "A124",
+    "ID": "EX02",
+    "E_CODE": "E124",
+    "Front side Image": "image2_front.png",
+    "Back side Image": "image2_back.png",
+  },
+];
+
+const cPartData = [
+  {
+    "SLNO": "1",
+    "BAR1": "1234",
+    "TOT_MARKS": "85",
+    "M_MARKS": "100",
+    "ANS_CODE": "A12345",
+    "ID": "EX01",
+    "Front side Image": "c_image1_front.png",
+    "Back side Image": "c_image1_back.png",
+  },
+  {
+    "SLNO": "2",
+    "BAR1": "5678",
+    "TOT_MARKS": "90",
+    "M_MARKS": "100",
+    "ANS_CODE": "A12346",
+    "ID": "EX02",
+    "Front side Image": "c_image2_front.png",
+    "Back side Image": "c_image2_back.png",
+  },
+];
+
 const CsvHomepage = () => {
   const [loading, setLoading] = useState(false);
   const [firstCsv, setFirstCsv] = useState(null);
   const [secondCsv, setSecondCsv] = useState(null);
-  const [imageColumnName, setImageColumnName] = useState("");
   const [csv1Headers, setCsv1Headers] = useState([]);
   const formRef = useRef(null);
 
@@ -28,29 +79,25 @@ const CsvHomepage = () => {
         return;
       }
 
-      if (!imageColumnName) {
-        toast.warning("Please select an image column name.");
-        return;
-      }
-
       setLoading(true);
       const firstCsvData = await readFile(firstCsv, true);
       const secondCsvData = await readFile(secondCsv);
+
       const mergedData = mergeCsvData(firstCsvData, secondCsvData);
       toast.success("Files merged successfully.");
 
       const match = firstCsv?.name.match(/^\d+/);
-      const result = match ? `${match[0]}.xlsx` : `${firstCsv.name.replace(/\.csv$/i, "")}.xlsx`; // Change to `.xlsx`
-      downloadXls(mergedData.data, result); // Call the new download function for XLSX
+      const result = match ? `${match[0]}.xlsx` : `${firstCsv.name.replace(/\.csv$/i, "")}.xlsx`;
+      downloadXls(mergedData.data, result);
 
     } catch (error) {
-      toast.error("Error merging files. Please try again.");
+      console.error(error); // For internal logging
+      toast.error("Error merging files. Please check the file formats and try again.");
     } finally {
       setLoading(false);
       setFirstCsv(null);
       setSecondCsv(null);
-      setImageColumnName('');
-      setCsv1Headers([]); // Reset headers
+      setCsv1Headers([]);
       if (formRef.current) {
         formRef.current.reset();
       }
@@ -59,18 +106,21 @@ const CsvHomepage = () => {
 
   const readFile = (file, isFirstCsv = false) => {
     return new Promise((resolve, reject) => {
-      const fileExtension = file.name.split('.').pop();
+      const fileExtension = file?.name?.split('.').pop().toLowerCase();
+
+      if (!fileExtension || !['csv', 'xlsx', 'xls'].includes(fileExtension)) {
+        toast.error("Unsupported file format. Please upload a CSV or Excel file.");
+        return reject(new Error("Unsupported file format"));
+      }
 
       if (fileExtension === 'csv') {
-        // Handle CSV files
         Papa.parse(file, {
           header: true,
           complete: (results) => {
             if (isFirstCsv) {
-              setCsv1Headers(Object.keys(results.data[0] || {})); // Store headers
+              setCsv1Headers(Object.keys(results.data[0] || {}));
             }
             const filteredData = results.data.map(row => {
-              // Filter out any columns that are in EXCLUDED_COLUMNS
               const filteredRow = {};
               Object.keys(row).forEach(key => {
                 if (!EXCLUDED_COLUMNS.includes(key)) {
@@ -82,119 +132,109 @@ const CsvHomepage = () => {
             resolve(filteredData);
           },
           error: (error) => {
+            toast.error("Error reading CSV file.");
             reject(error);
           }
         });
-      } else if (fileExtension === 'xlsx' || fileExtension === 'xls') {
-        // Handle Excel files
+      } else if (['xlsx', 'xls'].includes(fileExtension)) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
-          const sheetName = workbook.SheetNames[0]; // Take the first sheet
-          const sheet = workbook.Sheets[sheetName];
-          const json = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Convert to JSON
-          const headers = json[0]; // First row is considered as headers
+          try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-          if (isFirstCsv) {
-            setCsv1Headers(headers); // Store headers
-          }
-          const dataWithoutHeaders = json.slice(1); // All rows after the first
-          const filteredData = dataWithoutHeaders.map(row => {
-            const rowObject = {};
-            headers.forEach((header, index) => {
-              if (!EXCLUDED_COLUMNS.includes(header)) {
-                rowObject[header] = row[index];
-              }
+            if (json.length === 0) {
+              throw new Error("Excel sheet is empty.");
+            }
+
+            const headers = json[0];
+            if (isFirstCsv) {
+              setCsv1Headers(headers);
+            }
+
+            const dataWithoutHeaders = json.slice(1);
+            const filteredData = dataWithoutHeaders.map(row => {
+              const rowObject = {};
+              headers.forEach((header, index) => {
+                if (!EXCLUDED_COLUMNS.includes(header)) {
+                  rowObject[header] = row[index];
+                }
+              });
+              return rowObject;
             });
-            return rowObject;
-          });
-          resolve(filteredData);
+            resolve(filteredData);
+          } catch (error) {
+            toast.error("Error reading Excel file.");
+            reject(error);
+          }
         };
         reader.onerror = (error) => {
+          toast.error("Error reading Excel file.");
           reject(error);
         };
         reader.readAsArrayBuffer(file);
       } else {
+        toast.error("Unsupported file format.");
         reject(new Error("Unsupported file format"));
       }
     });
   };
 
   const mergeCsvData = (csv1Data, csv2Data) => {
-    const csv1HeadersBeforeImage = csv1Headers.slice(0, csv1Headers.indexOf(imageColumnName));
-    const csv1HeadersAfterImage = csv1Headers.slice(csv1Headers.indexOf(imageColumnName));
+    const mergedHeaders = [...mainHeaders];
 
-    const csv2Headers = Object.keys(csv2Data[0] || {});
-    const mergedHeaders = [
-      ...csv1HeadersBeforeImage,
-      ...csv2Headers.filter(header => header !== 'BAR1' && !EXCLUDED_COLUMNS.includes(header)), // Exclude 'BAR1' and excluded columns
-      ...csv1HeadersAfterImage
-    ];
-
-    const csv1Map = new Map();
     const csv2Map = new Map();
-
-    csv1Data.forEach(row => {
-      if (row.BAR1) {
-        csv1Map.set(row.BAR1, row);
-      }
-    });
-
     csv2Data.forEach(row => {
       if (row.BAR1) {
         csv2Map.set(row.BAR1, row);
       }
     });
 
-    const mergedData = [];
-
-    csv1Data.forEach(csv1Row => {
+    const mergedData = csv1Data.map(csv1Row => {
       const bar1Value = csv1Row.BAR1;
       const csv2Row = csv2Map.get(bar1Value) || {};
 
-      const mergedRow = {};
-
-      // Add headers from csv1 before the image column
-      csv1HeadersBeforeImage.forEach(header => {
-        if (!EXCLUDED_COLUMNS.includes(header)) {
-          mergedRow[header] = csv1Row[header] || '';
-        }
-      });
-
-      // Add headers from csv2, but prefer csv1's value if header exists in both
-      csv2Headers.forEach(header => {
-        if (header !== 'BAR1' && !EXCLUDED_COLUMNS.includes(header)) {
-          mergedRow[header] = csv1Row[header] || csv2Row[header] || '';
-        }
-      });
-
-      // Add headers from csv1 after the image column
-      csv1HeadersAfterImage.forEach(header => {
-        if (!EXCLUDED_COLUMNS.includes(header)) {
-          mergedRow[header] = csv1Row[header] || '';
-        }
-      });
-
-      mergedData.push(mergedRow);
+      return {
+        "Part_A.Sno": csv2Row["SLNO"] || "",
+        "Part_A.Barcode": bar1Value || "",
+        "Answer Sheet No": csv1Row["ANS_CODE"],
+        "Rollno": csv2Row["ROLL"] || "",
+        "Paper_ID": csv2Row["ID"] || "",
+        "Exam_Code": csv2Row["E_CODE"] || "",
+        "Part_A.Front Side Image": csv2Row["Front side Image"] || "",
+        "Part_A.Back Side Image": csv2Row["Back side Image"] || "",
+        "Part_A.Remarks": "",
+        "Part_A.Edited": "",
+        "Correction": "",
+        "Part_C.Sno": csv1Row["SLNO"] || "",
+        "Part_C.Barcode": bar1Value || "",
+        "Marks_Obt": csv1Row["TOT_MARKS"] || "",
+        "Max_Marks": csv1Row["M_MARKS"] || "",
+        "Ans_Book_Code": csv1Row["ANS_CODE"] || "",
+        "Packet_ID": "",
+        "Part_C.Front Side Image": csv1Row["Front side Image"] || "",
+        "Part_C.Back Side Image": csv1Row["Back side Image"] || "",
+        "Part_C.Remarks": "",
+        "Part_C.Edited": "",
+        "FLD_1": "", "FLD_2": "", "FLD_3": "", "FLD_4": "", "FLD_5": "",
+        "FLD_6": "", "FLD_7": "", "FLD_8": "", "FLD_9": "", "FLD_10": "",
+        "FLD_11": "", "FLD_12": "", "FLD_13": "", "FLD_14": "", "FLD_15": ""
+      };
     });
 
-    return {
-      headers: mergedHeaders,
-      data: mergedData
-    };
+    return { headers: mergedHeaders, data: mergedData };
   };
 
   const downloadXls = (mergedData, fileName) => {
-    const wb = XLSX.utils.book_new(); // Create a new workbook
-    const ws = XLSX.utils.json_to_sheet(mergedData); // Convert JSON data to a worksheet
-
-    // Append the worksheet to the workbook
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(mergedData);
     XLSX.utils.book_append_sheet(wb, ws, "Merged Data");
-
-    // Write the Excel file and trigger the download
     XLSX.writeFile(wb, fileName);
   };
+
 
   return (
     <main
@@ -220,7 +260,7 @@ const CsvHomepage = () => {
                   const file = e.target.files[0];
                   setFirstCsv(file);
                   if (file) {
-                    readFile(file, true);
+                    readFile(file, true).catch((err) => toast.error("Error reading file."));
                   }
                 }}
               />
@@ -237,29 +277,10 @@ const CsvHomepage = () => {
                   const file = e.target.files[0];
                   setSecondCsv(file);
                   if (file) {
-                    readFile(file);
+                    readFile(file).catch((err) => toast.error("Error reading file."));
                   }
                 }}
               />
-            </div>
-          </div>
-          <div className="flex flex-row justify-between gap-10 mb-6">
-            <div className="grid w-1/2 items-center gap-1.5">
-              <label className="text-sm text-gray-600 font-medium leading-none">
-                Select Place Column Name
-              </label>
-              <select
-                value={imageColumnName}
-                onChange={(e) => setImageColumnName(e.target.value)}
-                className="flex h-10 w-full rounded-md border bg-white px-3 py-2 text-sm font-weight-bold text-gray-400 file:border-0 file:bg-transparent file:text-gray-600 file:text-sm file:font-medium border-black-400 hover:border-blue-400"
-              >
-                <option value="" disabled>Select a column</option>
-                {csv1Headers.map((header, index) => (
-                  <option key={index} value={header}>
-                    {header}
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
           <div className="flex flex-row justify-center gap-10">
@@ -273,6 +294,18 @@ const CsvHomepage = () => {
             >
               Merge Files
             </LoadingButton>
+          </div>
+          <div className="gap-2">
+            <button
+              onClick={() => downloadXls(cPartData, "C_PART.xlsx")}
+              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4  rounded m-2">
+              Download Sample C_PART
+            </button>
+            <button
+              onClick={() => downloadXls(aPartData, "A_PART.xlsx")}
+              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+              Download Sample A_PART
+            </button>
           </div>
         </form>
       </div>
