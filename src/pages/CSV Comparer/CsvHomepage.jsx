@@ -37,12 +37,11 @@ const CsvHomepage = () => {
       const firstCsvData = await readFile(firstCsv, true);
       const secondCsvData = await readFile(secondCsv);
       const mergedData = mergeCsvData(firstCsvData, secondCsvData);
-      const mergedCsv = Papa.unparse(mergedData.data);
       toast.success("Files merged successfully.");
 
       const match = firstCsv?.name.match(/^\d+/);
-      const result = match ? `${match[0]}.csv` : null;
-      downloadCsv(mergedCsv, result ? result : firstCsv.name);
+      const result = match ? `${match[0]}.xlsx` : `${firstCsv.name.replace(/\.csv$/i, "")}.xlsx`; // Change to `.xlsx`
+      downloadXls(mergedData.data, result); // Call the new download function for XLSX
 
     } catch (error) {
       toast.error("Error merging files. Please try again.");
@@ -186,18 +185,15 @@ const CsvHomepage = () => {
     };
   };
 
-  const downloadCsv = (csvContent, fileName) => {
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', fileName);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+  const downloadXls = (mergedData, fileName) => {
+    const wb = XLSX.utils.book_new(); // Create a new workbook
+    const ws = XLSX.utils.json_to_sheet(mergedData); // Convert JSON data to a worksheet
+
+    // Append the worksheet to the workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Merged Data");
+
+    // Write the Excel file and trigger the download
+    XLSX.writeFile(wb, fileName);
   };
 
   return (
@@ -224,7 +220,7 @@ const CsvHomepage = () => {
                   const file = e.target.files[0];
                   setFirstCsv(file);
                   if (file) {
-                    readFile(file, true); // Indicate this is the first file
+                    readFile(file, true);
                   }
                 }}
               />
