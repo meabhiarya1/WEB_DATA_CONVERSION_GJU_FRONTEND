@@ -240,7 +240,7 @@ const CsvHomepage = () => {
         "Answer Sheet No": csv1Row["ANS_CODE"],
         Rollno: String(csv2Row["ROLL"] || ""),
         Paper_ID: csv2Row["ID"] || "",
-        Exam_Code: csv2Row["E_CODE"] || "", //
+        Exam_Code: csv2Row["E_CODE"] || "",
         "Part_A.Front Side Image": csv2Row["Front side Image"] || "",
         "Part_A.Remarks": "",
         "Part_A.Edited": "",
