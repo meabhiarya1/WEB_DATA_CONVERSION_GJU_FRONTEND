@@ -242,6 +242,7 @@ const CsvHomepage = () => {
         Paper_ID: csv2Row["ID"] || "",
         Exam_Code: csv2Row["E_CODE"] || "",
         "Part_A.Front Side Image": csv2Row["Front side Image"] || "",
+        "Part_A.Back Side Image": csv2Row["Back Side Image"] || "",
         "Part_A.Remarks": "",
         "Part_A.Edited": "",
         Correction: "",
