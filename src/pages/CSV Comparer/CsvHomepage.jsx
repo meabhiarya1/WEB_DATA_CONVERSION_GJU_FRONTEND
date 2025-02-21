@@ -229,25 +229,45 @@ const CsvHomepage = () => {
     });
   };
 
+  const findDuplicates = (data, key) => {
+    const seen = new Set();
+    const duplicates = new Set();
+
+    data.forEach((row) => {
+      const value = row[key] ? row[key].trim() : "";
+      if (seen.has(value)) {
+        duplicates.add(value);
+      } else {
+        seen.add(value);
+      }
+    });
+
+    return duplicates;
+  };
+
   const mergeCsvData = (csv1Data, csv2Data) => {
     const mergedHeaders = [...mainHeaders];
-    const duplicateData = []; // Array to store duplicates
+    const duplicateData = []; // Stores duplicates
 
+    // 🔍 Find duplicates before merging
+    const duplicateCsv1Barcodes = findDuplicates(csv1Data, "BAR1");
+    const duplicateCsv2Barcodes = findDuplicates(csv2Data, "BAR1");
+    const duplicateCsv1Rollnos = findDuplicates(csv1Data, "ROLL"); // Fixed csv1Data instead of csv2Data
+
+    // Store csv2Data in a Map for quick lookup
     const csv2Map = new Map();
     csv2Data.forEach((row) => {
-      const bar1Value = row.BAR1 ? row.BAR1.trim() : ""; // Trim spaces
+      const bar1Value = row.BAR1 ? row.BAR1.trim() : "";
       if (bar1Value) {
         csv2Map.set(Number(bar1Value), row);
       }
     });
 
     const mergedData = [];
-    const seenRollnos = new Set();
-    const seenBarcodes = new Set();
 
     csv1Data.forEach((csv1Row) => {
       const bar1Value = csv1Row.BAR1 ? csv1Row.BAR1.trim() : "";
-      const csv2Row = csv2Map.get(Number(bar1Value)); // Ensure it's a number
+      const csv2Row = csv2Map.get(Number(bar1Value));
 
       if (csv2Row) {
         const mergedRow = {
@@ -299,22 +319,18 @@ const CsvHomepage = () => {
           FLD_15: "",
         };
 
-        // Check for duplicates based on Rollno or Barcode
-        const isDuplicate =
-          seenRollnos.has(mergedRow.Rollno) ||
-          seenBarcodes.has(mergedRow["Part_A.Barcode"]);
-
-        if (isDuplicate) {
+        // Check if Barcode or Rollno is in duplicate sets
+        if (
+          duplicateCsv1Barcodes.has(bar1Value) ||
+          duplicateCsv2Barcodes.has(bar1Value) ||
+          duplicateCsv1Rollnos.has(mergedRow.Rollno)
+        ) {
           duplicateData.push(mergedRow);
-          if (seenRollnos.has(mergedRow.Rollno)) {
-            console.log(`Duplicate Rollno: ${mergedRow.Rollno}`);
-          } else if (seenBarcodes.has(mergedRow["Part_A.Barcode"])) {
-            console.log(`Duplicate Barcode: ${mergedRow["Part_A.Barcode"]}`);
-          }
+          console.log(
+            `Duplicate Found: Barcode=${bar1Value}, Rollno=${mergedRow.Rollno}`
+          );
         } else {
           mergedData.push(mergedRow);
-          seenRollnos.add(mergedRow.Rollno);
-          seenBarcodes.add(mergedRow["Part_A.Barcode"]);
         }
       }
     });
@@ -322,7 +338,101 @@ const CsvHomepage = () => {
     return { headers: mergedHeaders, data: mergedData, duplicateData };
   };
 
+  // const mergeCsvData = (csv1Data, csv2Data) => {
+  //   const mergedHeaders = [...mainHeaders];
+  //   const duplicateData = []; // Array to store duplicates
+
+  //   const csv2Map = new Map();
+  //   csv2Data.forEach((row) => {
+  //     const bar1Value = row.BAR1 ? row.BAR1.trim() : ""; // Trim spaces
+  //     if (bar1Value) {
+  //       csv2Map.set(Number(bar1Value), row);
+  //     }
+  //   });
+
+  //   const mergedData = [];
+  //   const seenRollnos = new Set();
+  //   const seenBarcodes = new Set();
+
+  //   csv1Data.forEach((csv1Row) => {
+  //     const bar1Value = csv1Row.BAR1 ? csv1Row.BAR1.trim() : "";
+  //     const csv2Row = csv2Map.get(Number(bar1Value)); // Ensure it's a number
+
+  //     if (csv2Row) {
+  //       const mergedRow = {
+  //         "Part_A.Sno": csv2Row["SLNO"] ? csv2Row["SLNO"].trim() : "",
+  //         "Part_A.Barcode": bar1Value,
+  //         "Answer Sheet No": csv1Row["ANS_CODE"]
+  //           ? csv1Row["ANS_CODE"].trim()
+  //           : "",
+  //         Rollno: csv2Row["ROLL"] ? String(csv2Row["ROLL"]).trim() : "",
+  //         Paper_ID: csv2Row["ID"] ? csv2Row["ID"].trim() : "",
+  //         Exam_Code: csv2Row["E_CODE"] ? csv2Row["E_CODE"].trim() : "",
+  //         "Part_A.Front Side Image": csv2Row["Front side Image"]
+  //           ? csv2Row["Front side Image"].trim()
+  //           : "",
+  //         "Part_A.Back Side Image": csv2Row["Back Side Image"]
+  //           ? csv2Row["Back Side Image"].trim()
+  //           : "",
+  //         "Part_A.Remarks": "",
+  //         "Part_A.Edited": "",
+  //         Correction: "",
+  //         "Part_C.Sno": csv1Row["SLNO"] ? csv1Row["SLNO"].trim() : "",
+  //         "Part_C.Barcode": bar1Value,
+  //         Marks_Obt: csv1Row["TOT_MARKS"] ? csv1Row["TOT_MARKS"].trim() : "",
+  //         Max_Marks: csv1Row["M_MARKS"] ? csv1Row["M_MARKS"].trim() : "",
+  //         Ans_Book_Code: csv1Row["ANS_CODE"] ? csv1Row["ANS_CODE"].trim() : "",
+  //         Packet_ID: "",
+  //         "Part_C.Front Side Image": csv1Row["Front side Image"]
+  //           ? csv1Row["Front side Image"].trim()
+  //           : "",
+  //         "Part_C.Back Side Image": csv1Row["Back Side Image"]
+  //           ? csv1Row["Back Side Image"].trim()
+  //           : "",
+  //         "Part_C.Remarks": "",
+  //         "Part_C.Edited": "",
+  //         FLD_1: "",
+  //         FLD_2: "",
+  //         FLD_3: "",
+  //         FLD_4: "",
+  //         FLD_5: "",
+  //         FLD_6: "",
+  //         FLD_7: "",
+  //         FLD_8: "",
+  //         FLD_9: "",
+  //         FLD_10: "",
+  //         FLD_11: "",
+  //         FLD_12: "",
+  //         FLD_13: "",
+  //         FLD_14: "",
+  //         FLD_15: "",
+  //       };
+
+  //       // Check for duplicates based on Rollno or Barcode
+  //       const isDuplicate =
+  //         seenRollnos.has(mergedRow.Rollno) ||
+  //         seenBarcodes.has(mergedRow["Part_A.Barcode"]);
+
+  //       if (isDuplicate) {
+  //         duplicateData.push(mergedRow);
+  //         if (seenRollnos.has(mergedRow.Rollno)) {
+  //           console.log(`Duplicate Rollno: ${mergedRow.Rollno}`);
+  //         } else if (seenBarcodes.has(mergedRow["Part_A.Barcode"])) {
+  //           console.log(`Duplicate Barcode: ${mergedRow["Part_A.Barcode"]}`);
+  //         }
+  //       } else {
+  //         mergedData.push(mergedRow);
+  //         seenRollnos.add(mergedRow.Rollno);
+  //         seenBarcodes.add(mergedRow["Part_A.Barcode"]);
+  //       }
+  //     }
+  //   });
+
+  //   return { headers: mergedHeaders, data: mergedData, duplicateData };
+  // };
+
   const downloadXls = (mergedData, fileName, headers, duplicateData) => {
+    console.log(duplicateData);
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(mergedData);
 
