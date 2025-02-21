@@ -432,6 +432,99 @@ const CsvHomepage = () => {
   //   XLSX.writeFile(wb, fileName);
   // };
 
+  // const downloadXls = (
+  //   mergedData,
+  //   fileName,
+  //   headers,
+  //   duplicateDataCSV1,
+  //   duplicateDataCSV2
+  // ) => {
+  //   const wb = XLSX.utils.book_new();
+  //   const ws = XLSX.utils.json_to_sheet(mergedData);
+
+  //   // Insert blank rows (2 rows)
+  //   const rowsBelow = 2; // Number of blank rows before inserting headers again
+  //   const blankRows = Array.from({ length: rowsBelow }, () => ({})); // Empty row objects
+
+  //   // Append merged data sheet
+  //   XLSX.utils.book_append_sheet(wb, ws, "Merged Data");
+
+  //   // Get the last row index of merged data
+  //   const lastRow = ws["!ref"].split(":")[1];
+  //   const lastRowIndex = parseInt(lastRow.replace(/[A-Za-z]/g, ""), 10);
+
+  //   // Add blank rows after the merged data
+  //   XLSX.utils.sheet_add_json(ws, blankRows, {
+  //     skipHeader: true,
+  //     origin: { r: lastRowIndex, c: 0 },
+  //   });
+
+  //   // === Add Duplicate Data Part_A Section (Till "Correction") ===
+  //   XLSX.utils.sheet_add_json(ws, [{ "": "Duplicate Data Part_A" }], {
+  //     skipHeader: true,
+  //     origin: { r: lastRowIndex + rowsBelow, c: 0 },
+  //   });
+
+  //   // Extract headers till "Correction"
+  //   const headersPartA = headers.slice(0, headers.indexOf("Correction") + 1);
+
+  //   // Add headers for duplicateDataCSV2
+  //   XLSX.utils.sheet_add_json(ws, [headersPartA], {
+  //     skipHeader: true,
+  //     origin: { r: lastRowIndex + rowsBelow + 1, c: 0 },
+  //   });
+
+  //   // Filter duplicateDataCSV2 (Part_A) till "Correction"
+  //   const duplicateDataPartA = duplicateDataCSV2.map((row) =>
+  //     Object.fromEntries(
+  //       Object.entries(row).filter(([key]) => headersPartA.includes(key))
+  //     )
+  //   );
+
+  //   XLSX.utils.sheet_add_json(ws, duplicateDataPartA, {
+  //     skipHeader: true,
+  //     origin: { r: lastRowIndex + rowsBelow + 2, c: 0 },
+  //   });
+
+  //   // === Add spacing before Part_C section ===
+  //   const newLastRowIndex =
+  //     lastRowIndex + rowsBelow + 2 + duplicateDataCSV2.length;
+  //   XLSX.utils.sheet_add_json(ws, blankRows, {
+  //     skipHeader: true,
+  //     origin: { r: newLastRowIndex, c: 0 },
+  //   });
+
+  //   // === Add Duplicate Data Part_C Section (After "Correction") ===
+  //   XLSX.utils.sheet_add_json(ws, [{ "": "Duplicate Data Part_C" }], {
+  //     skipHeader: true,
+  //     origin: { r: newLastRowIndex + rowsBelow, c: 0 },
+  //   });
+
+  //   // Extract headers after "Correction"
+  //   const headersPartC = headers.slice(headers.indexOf("Correction") + 1);
+
+  //   // Add headers for duplicateDataCSV1
+  //   XLSX.utils.sheet_add_json(ws, [headersPartC], {
+  //     skipHeader: true,
+  //     origin: { r: newLastRowIndex + rowsBelow + 1, c: 0 },
+  //   });
+
+  //   // Filter duplicateDataCSV1 (Part_C) after "Correction"
+  //   const duplicateDataPartC = duplicateDataCSV1.map((row) =>
+  //     Object.fromEntries(
+  //       Object.entries(row).filter(([key]) => headersPartC.includes(key))
+  //     )
+  //   );
+
+  //   XLSX.utils.sheet_add_json(ws, duplicateDataPartC, {
+  //     skipHeader: true,
+  //     origin: { r: newLastRowIndex + rowsBelow + 2, c: 0 },
+  //   });
+
+  //   // Write the file
+  //   XLSX.writeFile(wb, fileName);
+  // };
+
   const downloadXls = (
     mergedData,
     fileName,
@@ -494,14 +587,16 @@ const CsvHomepage = () => {
       origin: { r: newLastRowIndex, c: 0 },
     });
 
-    // === Add Duplicate Data Part_C Section (After "Correction") ===
+    // === Add Duplicate Data Part_C Section (After "Correction" Till "Part_C.Edited") ===
     XLSX.utils.sheet_add_json(ws, [{ "": "Duplicate Data Part_C" }], {
       skipHeader: true,
       origin: { r: newLastRowIndex + rowsBelow, c: 0 },
     });
 
-    // Extract headers after "Correction"
-    const headersPartC = headers.slice(headers.indexOf("Correction") + 1);
+    // Extract headers from "Correction" to "Part_C.Edited"
+    const startIdx = headers.indexOf("Correction") + 1;
+    const endIdx = headers.indexOf("Part_C.Edited") + 1;
+    const headersPartC = headers.slice(startIdx, endIdx);
 
     // Add headers for duplicateDataCSV1
     XLSX.utils.sheet_add_json(ws, [headersPartC], {
@@ -509,7 +604,7 @@ const CsvHomepage = () => {
       origin: { r: newLastRowIndex + rowsBelow + 1, c: 0 },
     });
 
-    // Filter duplicateDataCSV1 (Part_C) after "Correction"
+    // Filter duplicateDataCSV1 (Part_C) from "Correction" to "Part_C.Edited"
     const duplicateDataPartC = duplicateDataCSV1.map((row) =>
       Object.fromEntries(
         Object.entries(row).filter(([key]) => headersPartC.includes(key))
