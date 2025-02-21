@@ -202,11 +202,15 @@ const CsvHomepage = () => {
               const rowObject = {};
               headers.forEach((header, index) => {
                 if (!EXCLUDED_COLUMNS.includes(header)) {
-                  rowObject[header] = row[index];
+                  rowObject[header] =
+                    row[index] !== undefined && row[index] !== null
+                      ? String(row[index])
+                      : "";
                 }
               });
               return rowObject;
             });
+
             resolve(filteredData);
           } catch (error) {
             toast.error("Error reading Excel file.");
@@ -231,8 +235,9 @@ const CsvHomepage = () => {
 
     const csv2Map = new Map();
     csv2Data.forEach((row) => {
-      if (row.BAR1) {
-        csv2Map.set(row.BAR1, row);
+      const bar1Value = row.BAR1 ? row.BAR1.trim() : ""; // Trim spaces
+      if (bar1Value) {
+        csv2Map.set(Number(bar1Value), row);
       }
     });
 
@@ -241,31 +246,40 @@ const CsvHomepage = () => {
     const seenBarcodes = new Set();
 
     csv1Data.forEach((csv1Row) => {
-      const bar1Value = csv1Row.BAR1;
-      const csv2Row = csv2Map.get(Number(bar1Value));
+      const bar1Value = csv1Row.BAR1 ? csv1Row.BAR1.trim() : "";
+      const csv2Row = csv2Map.get(Number(bar1Value)); // Ensure it's a number
 
       if (csv2Row) {
-        // Prepare merged row
         const mergedRow = {
-          "Part_A.Sno": csv2Row["SLNO"] || "",
-          "Part_A.Barcode": bar1Value || "",
-          "Answer Sheet No": csv1Row["ANS_CODE"],
-          Rollno: String(csv2Row["ROLL"] || ""),
-          Paper_ID: csv2Row["ID"] || "",
-          Exam_Code: csv2Row["E_CODE"] || "",
-          "Part_A.Front Side Image": csv2Row["Front side Image"] || "",
-          "Part_A.Back Side Image": csv2Row["Back Side Image"] || "",
+          "Part_A.Sno": csv2Row["SLNO"] ? csv2Row["SLNO"].trim() : "",
+          "Part_A.Barcode": bar1Value,
+          "Answer Sheet No": csv1Row["ANS_CODE"]
+            ? csv1Row["ANS_CODE"].trim()
+            : "",
+          Rollno: csv2Row["ROLL"] ? String(csv2Row["ROLL"]).trim() : "",
+          Paper_ID: csv2Row["ID"] ? csv2Row["ID"].trim() : "",
+          Exam_Code: csv2Row["E_CODE"] ? csv2Row["E_CODE"].trim() : "",
+          "Part_A.Front Side Image": csv2Row["Front side Image"]
+            ? csv2Row["Front side Image"].trim()
+            : "",
+          "Part_A.Back Side Image": csv2Row["Back Side Image"]
+            ? csv2Row["Back Side Image"].trim()
+            : "",
           "Part_A.Remarks": "",
           "Part_A.Edited": "",
           Correction: "",
-          "Part_C.Sno": csv1Row["SLNO"] || "",
-          "Part_C.Barcode": bar1Value || "",
-          Marks_Obt: csv1Row["TOT_MARKS"] || "",
-          Max_Marks: csv1Row["M_MARKS"] || "",
-          Ans_Book_Code: csv1Row["ANS_CODE"] || "",
+          "Part_C.Sno": csv1Row["SLNO"] ? csv1Row["SLNO"].trim() : "",
+          "Part_C.Barcode": bar1Value,
+          Marks_Obt: csv1Row["TOT_MARKS"] ? csv1Row["TOT_MARKS"].trim() : "",
+          Max_Marks: csv1Row["M_MARKS"] ? csv1Row["M_MARKS"].trim() : "",
+          Ans_Book_Code: csv1Row["ANS_CODE"] ? csv1Row["ANS_CODE"].trim() : "",
           Packet_ID: "",
-          "Part_C.Front Side Image": csv1Row["Front side Image"] || "",
-          "Part_C.Back Side Image": csv1Row["Back side Image"] || "",
+          "Part_C.Front Side Image": csv1Row["Front side Image"]
+            ? csv1Row["Front side Image"].trim()
+            : "",
+          "Part_C.Back Side Image": csv1Row["Back Side Image"]
+            ? csv1Row["Back Side Image"].trim()
+            : "",
           "Part_C.Remarks": "",
           "Part_C.Edited": "",
           FLD_1: "",
@@ -285,25 +299,19 @@ const CsvHomepage = () => {
           FLD_15: "",
         };
 
-        // Check if the Rollno or Barcode already exists
+        // Check for duplicates based on Rollno or Barcode
         const isDuplicate =
           seenRollnos.has(mergedRow.Rollno) ||
           seenBarcodes.has(mergedRow["Part_A.Barcode"]);
 
         if (isDuplicate) {
-          // If it's a duplicate, store it in duplicateData and log to console
           duplicateData.push(mergedRow);
-
-          // Log which field (Rollno or Barcode) is duplicate
           if (seenRollnos.has(mergedRow.Rollno)) {
-            console.log(
-              `Duplicate Rollno: ${mergedRow.Rollno}`
-            );
-          } else if(seenBarcodes.has(mergedRow["Part_A.Barcode"])) {
+            console.log(`Duplicate Rollno: ${mergedRow.Rollno}`);
+          } else if (seenBarcodes.has(mergedRow["Part_A.Barcode"])) {
             console.log(`Duplicate Barcode: ${mergedRow["Part_A.Barcode"]}`);
           }
         } else {
-          // Otherwise, add to mergedData and mark Rollno/Barcode as seen
           mergedData.push(mergedRow);
           seenRollnos.add(mergedRow.Rollno);
           seenBarcodes.add(mergedRow["Part_A.Barcode"]);
@@ -313,23 +321,6 @@ const CsvHomepage = () => {
 
     return { headers: mergedHeaders, data: mergedData, duplicateData };
   };
-
-  // const downloadXls = (mergedData, fileName, headers, duplicateData) => {
-  //   const wb = XLSX.utils.book_new();
-  //   const ws = XLSX.utils.json_to_sheet(mergedData);
-
-  //   // Insert blank rows (2 or 3 rows) after the merged data
-  //   const rowsBelow = 2; // Number of rows to leave before inserting headers again
-  //   const blankRows = Array.from({ length: rowsBelow }, () => ({})); // Empty rows
-  //   XLSX.utils.book_append_sheet(wb, ws, "Merged Data");
-  //   // Insert blank rows in the worksheet
-  //   XLSX.utils.sheet_add_json(ws, blankRows, {
-  //     skipHeader: true,
-  //     origin: ws["!ref"],
-  //   });
-
-  //   XLSX.writeFile(wb, fileName);
-  // };
 
   const downloadXls = (mergedData, fileName, headers, duplicateData) => {
     const wb = XLSX.utils.book_new();
